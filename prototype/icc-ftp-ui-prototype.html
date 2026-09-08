@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>ICC FTP UI Prototype</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-[100dvh] bg-zinc-100 font-sans text-zinc-950 antialiased">
+  <!-- PROTOTYPE: Three variants of the ICC FTP catalog, switchable via ?variant=, with all live-site page types represented. -->
+  <div id="app"></div>
+
+  <script>
+    const baseAsset = 'http://10.16.100.244/';
+
+    const groups = [
+      {
+        name: 'Movies',
+        categories: [
+          ['3D', 95], ['4K', 958], ['Animated', 1090], ['Anime', 165],
+          ['Chinese Movies', 746], ['Documentaries', 840], ['Dual Audio', 2560],
+          ['English Movies', 16224], ['Exclusive Full-HD', 269], ['Hindi Movies', 3034],
+          ['Indonesian Movies', 208], ['Japanese Movies', 375], ['Korean Movies', 636],
+          ['Other Foreign Movies', 4043], ['Pakistani Movies', 33], ['Punjabi Movies', 217],
+          ['South Indian - Hindi Dubbed', 2072], ['South Indian Movies', 770]
+        ]
+      },
+      {
+        name: 'Games',
+        categories: [
+          ['Android Games', 5], ['Kids Games', 26], ['Racing Games', 49], ['Strategy Games', 549]
+        ]
+      },
+      {
+        name: 'Software',
+        categories: [
+          ['Adobe Collection', 76], ['Anti Virus', 15], ['Bangla Software', 12],
+          ['Browser', 17], ['Developer Tools', 17], ['Internet Software', 21],
+          ['Microsoft Office', 13], ['Multimedia Software', 53], ['Operating Systems', 96],
+          ['Other Software', 44], ['Utility Software', 69]
+        ]
+      },
+      {
+        name: 'TV Shows',
+        categories: [
+          ['Awards', 57], ['Animation Series', 171], ['Anime Series', 234],
+          ['Documentary Series', 55], ['Dual Audio Series', 655], ['English Series', 2219],
+          ['Hindi Series', 968], ['Other Series', 639], ['WWE', 936]
+        ]
+      },
+      {
+        name: 'Others',
+        categories: [
+          ['E-Books', 44], ['Kids Cartoons', 87], ['Learning', 28]
+        ]
+      }
+    ];
+
+    const items = [
+      {
+        title: 'A Sad and Beautiful World',
+        subtitle: '2025 - Drama, Romance',
+        type: 'Movie',
+        age: '3 hours ago',
+        hits: '63 hits',
+        size: '2.62 GB',
+        image: baseAsset + 'files/a_sad_and_beautiful_world__nujum_al_amal_w_al_alam_.jpg',
+        page: 'detail'
+      },
+      {
+        title: 'Levitating',
+        subtitle: '2025 - Horror',
+        type: 'Movie',
+        age: '3 hours ago',
+        hits: '45 hits',
+        size: '1.86 GB',
+        image: baseAsset + 'files/levitating__para_perasuk_.jpg',
+        page: 'detail'
+      },
+      {
+        title: 'Penny Lane Is Dead',
+        subtitle: '2026 - Thriller',
+        type: 'Movie',
+        age: '3 hours ago',
+        hits: '39 hits',
+        size: '2.08 GB',
+        image: baseAsset + 'files/penny_lane_is_dead.jpg',
+        page: 'detail'
+      },
+      {
+        title: 'The Last Sunrise',
+        subtitle: '2026 - Drama',
+        type: 'Movie',
+        age: '3 hours ago',
+        hits: '123 hits',
+        size: '2.24 GB',
+        image: baseAsset + 'files/the_last_sunrise.jpeg',
+        page: 'detail'
+      },
+      {
+        title: 'Mousetrap',
+        subtitle: 'Season 01 - 10 episodes',
+        type: 'Series',
+        age: '7 hours ago',
+        hits: '173 hits',
+        size: '12.1 GB',
+        image: baseAsset + 'files/mousetrap__deuljwi__season_01__2026___hindi___english__completed.jpg',
+        page: 'series'
+      },
+      {
+        title: 'Silo',
+        subtitle: 'Season 03 - Episodes 01-08',
+        type: 'Series',
+        age: '3 days ago',
+        hits: '341 hits',
+        size: '9.8 GB',
+        image: baseAsset + 'files/silo_season_03__2026__episode__01_08_.jpg',
+        page: 'series'
+      },
+      {
+        title: 'Maneater - RUNE',
+        subtitle: 'Windows - Strategy',
+        type: 'Game',
+        age: '1 day ago',
+        hits: '17 hits',
+        size: '28.4 GB',
+        image: baseAsset + 'files/Maneater%20-%20RUNE.jpg',
+        page: 'download'
+      },
+      {
+        title: 'Adobe After Effects',
+        subtitle: '2021 - Pre-activated',
+        type: 'Software',
+        age: '19 days ago',
+        hits: '133 hits',
+        size: '2.91 GB',
+        image: baseAsset + 'files/Adobe%20After%20Effects%20(preactivado)%20202118414.jpg',
+        page: 'download'
+      },
+      {
+        title: 'Cambridge IELTS Books',
+        subtitle: 'Books 01-15 with listening tests',
+        type: 'E-Book',
+        age: '5 years ago',
+        hits: '26,974 hits',
+        size: '4.31 GB',
+        image: baseAsset + 'files/The_Official_Cambridge_Guide_to_IELTS-700x887.jpg',
+        page: 'download'
+      },
+      {
+        title: 'Modern GraphQL Bootcamp',
+        subtitle: 'Node.js and Apollo',
+        type: 'Course',
+        age: '5 years ago',
+        hits: '2,498 hits',
+        size: '8.87 GB',
+        image: baseAsset + 'files/udemy_the_modern_graphql_bootcamp__with_node_js_and_apollo_.jpg',
+        page: 'download'
+      },
+      {
+        title: 'Flutter and Firebase',
+        subtitle: 'Build real-world iOS and Android apps',
+        type: 'Course',
+        age: '4 years ago',
+        hits: '5,739 hits',
+        size: '6.42 GB',
+        image: baseAsset + 'files/Flutter%20&%20Firebase%20Build%20Real%20World%20iOS%20and%20Android%20Apps.jpg',
+        page: 'download'
+      },
+      {
+        title: 'The Whisper Man',
+        subtitle: 'Hindi and English',
+        type: 'Movie',
+        age: '3 hours ago',
+        hits: '62 hits',
+        size: '2.03 GB',
+        image: baseAsset + 'files/the_whisper_man__hindi___english_.jpg',
+        page: 'detail'
+      }
+    ];
+
+    const variants = {
+      A: { name: 'Catalog', description: 'Balanced poster grid and strong filters' },
+      B: { name: 'Navigator', description: 'Dense sidebar and list-first browsing' },
+      C: { name: 'Spotlight', description: 'Media-first shelves and cinematic details' }
+    };
+
+    const pages = [
+      ['home', 'Home'],
+      ['library', 'Library'],
+      ['search', 'Search'],
+      ['detail', 'Movie'],
+      ['series', 'Series'],
+      ['download', 'File'],
+      ['states', 'States']
+    ];
+
+    function getState() {
+      const params = new URLSearchParams(location.search);
+      return {
+        variant: variants[params.get('variant')] ? params.get('variant') : 'A',
+        page: pages.some(function(entry) { return entry[0] === params.get('page'); }) ? params.get('page') : 'home',
+        category: params.get('category') || 'Latest additions',
+        query: params.get('q') || 'GraphQL'
+      };
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, function(character) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        }[character];
+      });
+    }
+
+    function setParams(changes, replace) {
+      const params = new URLSearchParams(location.search);
+      Object.keys(changes).forEach(function(key) {
+        const value = changes[key];
+        if (value === null || value === undefined || value === '') params.delete(key);
+        else params.set(key, value);
+      });
+      const next = location.pathname + '?' + params.toString();
+      history[replace ? 'replaceState' : 'pushState']({}, '', next);
+      render();
+    }
+
+    function pageLink(page, label, state, compact) {
+      const active = state.page === page;
+      const base = compact
+        ? 'rounded-lg px-3 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 '
+        : 'rounded-xl px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ';
+      const tone = state.variant === 'C'
+        ? (active ? 'bg-white text-zinc-950' : 'text-zinc-400 hover:bg-white/10 hover:text-white')
+        : (active ? 'bg-zinc-950 text-white' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950');
+      return '<button type="button" data-page="' + page + '" class="' + base + tone + '" aria-current="' + (active ? 'page' : 'false') + '">' + label + '</button>';
+    }
+
+    function pageTabs(state, compact) {
+      return pages.map(function(entry) {
+        return pageLink(entry[0], entry[1], state, compact);
+      }).join('');
+    }
+
+    function brand(dark) {
+      return [
+        '<button type="button" data-page="home" class="flex shrink-0 items-center gap-3 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">',
+          '<span class="grid size-10 place-items-center overflow-hidden rounded-xl ' + (dark ? 'bg-white' : 'bg-zinc-100') + '">',
+            '<img src="' + baseAsset + 'images/logo-purple.svg" alt="ICC logo" class="h-8 w-8 object-contain">',
+          '</span>',
+          '<span>',
+            '<span class="block text-sm font-black tracking-tight ' + (dark ? 'text-white' : 'text-zinc-950') + '">ICC FILES</span>',
+            '<span class="block text-[11px] font-medium ' + (dark ? 'text-zinc-500' : 'text-zinc-500') + '">Local media server</span>',
+          '</span>',
+        '</button>'
+      ].join('');
+    }
+
+    function searchForm(state, dark, compact) {
+      return [
+        '<form data-search-form class="relative ' + (compact ? 'w-full' : 'w-full max-w-md') + '">',
+          '<label for="global-search-' + state.variant + '" class="sr-only">Search the server</label>',
+          '<div class="flex items-center rounded-xl border ' + (dark ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-white') + ' p-1 shadow-sm focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-500/20">',
+            '<input id="global-search-' + state.variant + '" data-search-input name="q" value="' + escapeHtml(state.page === 'search' ? state.query : '') + '" autocomplete="off" placeholder="Search movies, games, software..." class="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm ' + (dark ? 'text-white placeholder:text-zinc-600' : 'text-zinc-950 placeholder:text-zinc-400') + ' outline-none">',
+            '<button type="submit" class="shrink-0 rounded-lg bg-violet-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-violet-500 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Search</button>',
+          '</div>',
+          '<div data-suggestions class="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-40 hidden overflow-hidden rounded-xl border ' + (dark ? 'border-white/10 bg-zinc-900' : 'border-zinc-200 bg-white') + ' p-2 shadow-2xl">',
+            '<p class="px-3 py-2 text-xs font-semibold ' + (dark ? 'text-zinc-500' : 'text-zinc-500') + '">Best match</p>',
+            '<button type="button" data-page="search" class="flex w-full items-center gap-3 rounded-lg p-2 text-left ' + (dark ? 'hover:bg-white/10' : 'hover:bg-zinc-100') + ' focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">',
+              '<img src="' + items[9].image + '" alt="" class="h-14 w-11 rounded-md object-cover">',
+              '<span class="min-w-0">',
+                '<span class="block truncate text-sm font-bold ' + (dark ? 'text-white' : 'text-zinc-950') + '">Modern GraphQL Bootcamp</span>',
+                '<span class="block text-xs ' + (dark ? 'text-zinc-500' : 'text-zinc-500') + '">Course - 8.87 GB</span>',
+              '</span>',
+            '</button>',
+          '</div>',
+        '</form>'
+      ].join('');
+    }
+
+    function prototypeSwitcher(state) {
+      const keys = Object.keys(variants);
+      const index = keys.indexOf(state.variant);
+      const previous = keys[(index - 1 + keys.length) % keys.length];
+      const next = keys[(index + 1) % keys.length];
+      return [
+        '<div class="fixed bottom-4 left-1/2 z-[70] flex -translate-x-1/2 items-center gap-1 rounded-2xl border border-white/10 bg-zinc-950 p-1.5 text-white shadow-2xl shadow-zinc-950/30">',
+          '<button type="button" data-variant="' + previous + '" class="grid size-10 place-items-center rounded-xl text-xl text-zinc-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400" aria-label="Previous prototype variant">&larr;</button>',
+          '<div class="min-w-44 px-4 text-center">',
+            '<p class="text-[11px] font-bold uppercase tracking-[0.16em] text-violet-300">Prototype ' + state.variant + '</p>',
+            '<p class="text-sm font-bold">' + variants[state.variant].name + '</p>',
+          '</div>',
+          '<button type="button" data-variant="' + next + '" class="grid size-10 place-items-center rounded-xl text-xl text-zinc-400 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400" aria-label="Next prototype variant">&rarr;</button>',
+        '</div>'
+      ].join('');
+    }
+
+    function browsePanel(state) {
+      const dark = state.variant === 'C';
+      return [
+        '<div data-browse-overlay class="fixed inset-0 z-[60] hidden bg-zinc-950/60 p-3 backdrop-blur-sm md:p-8">',
+          '<section role="dialog" aria-modal="true" aria-labelledby="browse-title" class="mx-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border ' + (dark ? 'border-white/10 bg-zinc-950 text-white' : 'border-zinc-200 bg-white text-zinc-950') + ' shadow-2xl md:max-h-[calc(100dvh-4rem)]">',
+            '<header class="flex items-center justify-between border-b ' + (dark ? 'border-white/10' : 'border-zinc-200') + ' px-5 py-4">',
+              '<div>',
+                '<h2 id="browse-title" class="text-lg font-black">Browse all 45 categories</h2>',
+                '<p class="mt-1 text-sm ' + (dark ? 'text-zinc-500' : 'text-zinc-500') + '">Every live category uses the same library page template.</p>',
+              '</div>',
+              '<button type="button" data-close-browse class="rounded-xl border ' + (dark ? 'border-white/10 hover:bg-white/10' : 'border-zinc-200 hover:bg-zinc-100') + ' px-4 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Close</button>',
+            '</header>',
+            '<div class="grid flex-1 gap-8 overflow-y-auto p-5 sm:grid-cols-2 lg:grid-cols-3">',
+              groups.map(function(group) {
+                return [
+                  '<section>',
+                    '<h3 class="mb-3 text-sm font-black text-violet-600">' + group.name + '</h3>',
+                    '<div class="space-y-1">',
+                      group.categories.map(function(category) {
+                        return [
+                          '<button type="button" data-category="' + escapeHtml(category[0]) + '" class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ' + (dark ? 'hover:bg-white/10' : 'hover:bg-zinc-100') + ' focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">',
+                            '<span class="font-medium">' + category[0] + '</span>',
+                            '<span class="ml-3 tabular-nums ' + (dark ? 'text-zinc-600' : 'text-zinc-400') + '">' + category[1].toLocaleString() + '</span>',
+                          '</button>'
+                        ].join('');
+                      }).join(''),
+                    '</div>',
+                  '</section>'
+                ].join('');
+              }).join(''),
+            '</div>',
+          '</section>',
+        '</div>'
+      ].join('');
+    }
+
+    function typeBadge(item, dark) {
+      return '<span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ' + (dark ? 'border-white/10 bg-black/30 text-zinc-300' : 'border-zinc-200 bg-white/90 text-zinc-700') + '">' + item.type + '</span>';
+    }
+
+    function cardA(item) {
+      return [
+        '<article class="group min-w-0">',
+          '<button type="button" data-page="' + item.page + '" class="relative block aspect-[3/4] w-full overflow-hidden rounded-2xl bg-zinc-200 text-left shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-zinc-300/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">',
+            '<img src="' + item.image + '" alt="" loading="lazy" class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]">',
+            '<span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent p-4 pt-16 text-white">',
+              '<span class="block text-base font-black leading-tight">' + item.title + '</span>',
+              '<span class="mt-1 block text-xs text-zinc-300">' + item.subtitle + '</span>',
+            '</span>',
+          '</button>',
+          '<div class="mt-3 flex items-center justify-between gap-3 text-xs text-zinc-500">',
+            '<span>' + item.age + '</span>',
+            '<span class="font-semibold text-zinc-700">' + item.size + '</span>',
+          '</div>',
+        '</article>'
+      ].join('');
+    }
+
+    function rowB(item) {
+      return [
+        '<article class="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 border-b border-zinc-200 px-3 py-3 transition hover:bg-zinc-50 sm:grid-cols-[56px_minmax(0,1fr)_110px_100px_auto]">',
+          '<img src="' + item.image + '" alt="" loading="lazy" class="h-16 w-12 rounded-lg object-cover sm:h-[72px] sm:w-14">',
+          '<div class="min-w-0">',
+            '<button type="button" data-page="' + item.page + '" class="block max-w-full truncate text-left text-sm font-black text-zinc-950 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">' + item.title + '</button>',
+            '<p class="mt-1 truncate text-xs text-zinc-500">' + item.subtitle + '</p>',
+            '<div class="mt-2 sm:hidden">' + typeBadge(item, false) + '</div>',
+          '</div>',
+          '<div class="hidden text-xs font-semibold text-zinc-600 sm:block">' + item.type + '</div>',
+          '<div class="hidden text-xs text-zinc-500 sm:block">' + item.age + '</div>',
+          '<div class="text-right">',
+            '<p class="text-xs font-black text-zinc-900">' + item.size + '</p>',
+            '<button type="button" data-page="' + item.page + '" class="mt-2 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-bold text-zinc-700 transition hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Open</button>',
+          '</div>',
+        '</article>'
+      ].join('');
+    }
+
+    function cardC(item, large) {
+      return [
+        '<article class="group min-w-0 ' + (large ? 'sm:col-span-2 lg:col-span-2' : '') + '">',
+          '<button type="button" data-page="' + item.page + '" class="relative block w-full overflow-hidden rounded-2xl bg-zinc-900 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 ' + (large ? 'aspect-[16/9]' : 'aspect-[3/4]') + '">',
+            '<img src="' + item.image + '" alt="" loading="lazy" class="h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-[1.03] group-hover:opacity-100">',
+            '<span class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent"></span>',
+            '<span class="absolute inset-x-0 bottom-0 p-5 text-white">',
+              '<span class="mb-2 block">' + typeBadge(item, true) + '</span>',
+              '<span class="block text-lg font-black leading-tight">' + item.title + '</span>',
+              '<span class="mt-1 block text-xs text-zinc-400">' + item.size + ' - ' + item.age + '</span>',
+            '</span>',
+          '</button>',
+        '</article>'
+      ].join('');
+    }
+
+    function sectionHeading(title, copy, dark) {
+      return [
+        '<div class="mb-6">',
+          '<h1 class="text-3xl font-black tracking-tight ' + (dark ? 'text-white' : 'text-zinc-950') + ' sm:text-4xl">' + title + '</h1>',
+          '<p class="mt-2 max-w-2xl text-sm leading-6 ' + (dark ? 'text-zinc-400' : 'text-zinc-600') + '">' + copy + '</p>',
+        '</div>'
+      ].join('');
+    }
+
+    function filters(dark) {
+      const base = dark ? 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10' : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300';
+      return [
+        '<div class="flex flex-wrap items-center gap-2">',
+          '<button type="button" class="rounded-xl border ' + base + ' px-3 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">All types</button>',
+          '<button type="button" class="rounded-xl border ' + base + ' px-3 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Newest first</button>',
+          '<button type="button" class="rounded-xl border ' + base + ' px-3 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Any size</button>',
+          '<button type="button" data-page="states" class="rounded-xl border ' + base + ' px-3 py-2 text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">View states</button>',
+        '</div>'
+      ].join('');
+    }
+
+    function homeA(state) {
+      return [
+        '<main class="mx-auto max-w-[1440px] px-4 pb-32 pt-8 sm:px-6 lg:px-8">',
+          '<section class="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">',
+            '<button type="button" data-page="detail" class="group relative min-h-[420px] overflow-hidden rounded-2xl bg-zinc-900 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 lg:min-h-[520px]">',
+              '<img src="' + items[0].image + '" alt="" class="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-[1.02]">',
+              '<span class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/65 to-transparent"></span>',
+              '<span class="relative flex min-h-[420px] max-w-2xl flex-col justify-end p-7 text-white lg:min-h-[520px] lg:p-10">',
+                '<span class="mb-4 block">' + typeBadge(items[0], true) + '</span>',
+                '<span class="block text-4xl font-black tracking-tight sm:text-5xl">A Sad and Beautiful World</span>',
+                '<span class="mt-4 block max-w-xl text-base leading-7 text-zinc-300">A newly added Beirut romance, available to stream or download in 1080p.</span>',
+                '<span class="mt-6 inline-flex w-fit rounded-xl bg-violet-600 px-5 py-3 text-sm font-black text-white transition group-hover:bg-violet-500">Open movie</span>',
+              '</span>',
+            '</button>',
+            '<div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">',
+              '<button type="button" data-page="library" class="rounded-2xl border border-zinc-200 bg-white p-6 text-left shadow-sm transition hover:border-violet-300 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">',
+                '<span class="text-sm font-bold text-violet-700">Browse the catalog</span>',
+                '<span class="mt-3 block text-3xl font-black tracking-tight">45 categories</span>',
+                '<span class="mt-3 block text-sm leading-6 text-zinc-600">Movies, games, software, TV shows, books, cartoons, and learning resources.</span>',
+                '<span class="mt-6 block text-sm font-black">Open library &rarr;</span>',
+              '</button>',
+              '<button type="button" data-page="series" class="relative min-h-56 overflow-hidden rounded-2xl bg-zinc-950 text-left text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">',
+                '<img src="' + items[4].image + '" alt="" class="absolute inset-0 h-full w-full object-cover opacity-45">',
+                '<span class="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent"></span>',
+                '<span class="relative flex min-h-56 flex-col justify-end p-6">',
+                  '<span class="text-xs font-bold text-violet-300">CONTINUE WITH EPISODES</span>',
+                  '<span class="mt-2 text-2xl font-black">Mousetrap</span>',
+                  '<span class="mt-1 text-sm text-zinc-400">10 episodes - 12.1 GB</span>',
+                '</span>',
+              '</button>',
+            '</div>',
+          '</section>',
+          '<section class="mt-14">',
+            '<div class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">',
+              '<div>',
+                '<h2 class="text-2xl font-black tracking-tight">Newest additions</h2>',
+                '<p class="mt-2 text-sm text-zinc-600">Clear metadata, predictable actions, no date-timeline clutter.</p>',
+              '</div>',
+              '<button type="button" data-page="library" class="w-fit rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-bold hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">View all</button>',
+            '</div>',
+            '<div class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">',
+              items.slice(0, 12).map(cardA).join(''),
+            '</div>',
+          '</section>',
+        '</main>'
+      ].join('');
+    }
+
+    function libraryA(state) {
+      return [
+        '<main class="mx-auto max-w-[1440px] px-4 pb-32 pt-8 sm:px-6 lg:px-8">',
+          '<div class="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">',
+            sectionHeading(escapeHtml(state.category), 'Browse a shared, consistent catalog layout with clear titles, age, popularity, and file size.', false),
+            filters(false),
+          '</div>',
+          '<div class="mt-8 flex items-center justify-between border-y border-zinc-200 py-4 text-sm">',
+            '<p class="font-semibold text-zinc-600"><span class="text-zinc-950">12 sample items</span> from this category</p>',
+            '<button type="button" data-browse class="font-black text-violet-700 hover:text-violet-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Change category</button>',
+          '</div>',
+          '<div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">',
+            items.map(cardA).join(''),
+          '</div>',
+          '<div class="mt-12 flex justify-center">',
+            '<button type="button" data-load-more class="rounded-xl border border-zinc-300 bg-white px-6 py-3 text-sm font-black text-zinc-900 shadow-sm transition hover:border-violet-300 hover:text-violet-700 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Load more items</button>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function resultCardA(item) {
+      return [
+        '<article class="grid gap-5 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:grid-cols-[132px_minmax(0,1fr)_auto] sm:items-center">',
+          '<img src="' + item.image + '" alt="" class="aspect-[3/4] w-full rounded-xl object-cover sm:w-[132px]">',
+          '<div>',
+            '<div class="mb-3">' + typeBadge(item, false) + '</div>',
+            '<h2 class="text-xl font-black">' + item.title + '</h2>',
+            '<p class="mt-2 text-sm text-zinc-600">' + item.subtitle + '</p>',
+            '<div class="mt-4 flex flex-wrap gap-4 text-xs text-zinc-500">',
+              '<span>' + item.age + '</span><span>' + item.hits + '</span><span class="font-bold text-zinc-800">' + item.size + '</span>',
+            '</div>',
+          '</div>',
+          '<button type="button" data-page="' + item.page + '" class="rounded-xl bg-violet-600 px-5 py-3 text-sm font-black text-white transition hover:bg-violet-500 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Open result</button>',
+        '</article>'
+      ].join('');
+    }
+
+    function searchA(state) {
+      return [
+        '<main class="mx-auto max-w-5xl px-4 pb-32 pt-8 sm:px-6 lg:px-8">',
+          sectionHeading('Search results', 'One accessible result list replaces the current unlabelled autocomplete table.', false),
+          '<form data-search-form class="mb-8 flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm sm:flex-row">',
+            '<label for="results-search-a" class="sr-only">Search all server files</label>',
+            '<input id="results-search-a" name="q" value="' + escapeHtml(state.query) + '" class="min-w-0 flex-1 rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20">',
+            '<button type="submit" class="rounded-xl bg-zinc-950 px-6 py-3 text-sm font-black text-white hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Search</button>',
+          '</form>',
+          '<div class="mb-5 flex items-center justify-between">',
+            '<p class="text-sm text-zinc-600">1 result for <strong class="text-zinc-950">"' + escapeHtml(state.query) + '"</strong></p>',
+            '<button type="button" data-page="states" class="text-sm font-black text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">See empty state</button>',
+          '</div>',
+          resultCardA(items[9]),
+        '</main>'
+      ].join('');
+    }
+
+    function mediaFrame(dark, item) {
+      const mediaItem = item || items[0];
+      return [
+        '<div class="relative aspect-video overflow-hidden rounded-2xl ' + (dark ? 'bg-black' : 'bg-zinc-950') + '">',
+          '<img src="' + mediaItem.image + '" alt="" class="h-full w-full object-cover opacity-30 blur-sm">',
+          '<div class="absolute inset-0 grid place-items-center">',
+            '<button type="button" class="grid size-16 place-items-center rounded-full bg-violet-600 text-lg font-black text-white shadow-2xl transition hover:scale-105 hover:bg-violet-500 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300" aria-label="Play video">PLAY</button>',
+          '</div>',
+          '<div class="absolute inset-x-4 bottom-4 flex items-center gap-3 text-xs text-white">',
+            '<span>00:00</span><span class="h-1 flex-1 rounded-full bg-white/20"><span class="block h-1 w-0 rounded-full bg-violet-500"></span></span><span>1:50:00</span>',
+          '</div>',
+        '</div>'
+      ].join('');
+    }
+
+    function metaGrid(dark, series) {
+      const label = dark ? 'text-zinc-500' : 'text-zinc-500';
+      const value = dark ? 'text-zinc-100' : 'text-zinc-900';
+      const metadata = series
+        ? [
+            ['Year', '2026'], ['Episodes', '10'], ['Genre', 'Crime, Drama, Thriller'],
+            ['Quality', '1080p'], ['Audio', 'Hindi and English'], ['Total size', '12.1 GB']
+          ]
+        : [
+            ['Year', '2025'], ['Runtime', '110 min'], ['Genre', 'Drama, Romance'],
+            ['Quality', '1080p WEBRip'], ['Language', 'Original'], ['File size', '2.62 GB']
+          ];
+      return [
+        '<dl class="grid grid-cols-2 gap-x-5 gap-y-5 text-sm">',
+          metadata.map(function(entry) {
+            return '<div><dt class="' + label + '">' + entry[0] + '</dt><dd class="mt-1 font-bold ' + value + '">' + entry[1] + '</dd></div>';
+          }).join(''),
+        '</dl>'
+      ].join('');
+    }
+
+    function detailA() {
+      return [
+        '<main class="mx-auto max-w-[1320px] px-4 pb-32 pt-8 sm:px-6 lg:px-8">',
+          '<button type="button" data-page="library" class="mb-6 rounded-lg text-sm font-black text-zinc-600 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">&larr; Back to library</button>',
+          '<div class="grid gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.7fr)]">',
+            '<section>',
+              mediaFrame(false, items[0]),
+              '<div class="mt-7">',
+                '<div class="mb-3">' + typeBadge(items[0], false) + '</div>',
+                '<h1 class="text-3xl font-black tracking-tight sm:text-4xl">A Sad and Beautiful World</h1>',
+                '<p class="mt-4 max-w-3xl text-sm leading-7 text-zinc-600">Two people in Beirut decide whether love can carry the weight of an uncertain future.</p>',
+              '</div>',
+            '</section>',
+            '<aside class="h-fit rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm lg:sticky lg:top-28">',
+              '<h2 class="text-lg font-black">File details</h2>',
+              '<div class="mt-6">' + metaGrid(false, false) + '</div>',
+              '<div class="mt-7 grid gap-3">',
+                '<button type="button" class="rounded-xl bg-violet-600 px-5 py-3 text-sm font-black text-white hover:bg-violet-500 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Download 2.62 GB</button>',
+                '<button type="button" class="rounded-xl border border-zinc-200 px-5 py-3 text-sm font-black text-zinc-800 hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Watch trailer</button>',
+              '</div>',
+              '<p class="mt-5 text-xs leading-5 text-zinc-500">Downloads stay on the local network. The extension can preserve the original file URL.</p>',
+            '</aside>',
+          '</div>',
+          '<section class="mt-14">',
+            '<h2 class="text-2xl font-black">Related titles</h2>',
+            '<div class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">' + items.slice(1, 7).map(cardA).join('') + '</div>',
+          '</section>',
+        '</main>'
+      ].join('');
+    }
+
+    function episodeRows(dark) {
+      const sizes = ['1.20 GB', '1.20 GB', '1.07 GB', '1.24 GB', '1.18 GB', '1.28 GB', '1.34 GB', '1.18 GB', '1.07 GB', '1.38 GB'];
+      return sizes.map(function(size, index) {
+        const number = String(index + 1).padStart(2, '0');
+        return [
+          '<article class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border ' + (dark ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-white') + ' p-3">',
+            '<button type="button" class="grid size-10 place-items-center rounded-lg ' + (index === 0 ? 'bg-violet-600 text-white' : (dark ? 'bg-white/10 text-white' : 'bg-zinc-100 text-zinc-800')) + ' text-xs font-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500" aria-label="Play episode ' + number + '">E' + number + '</button>',
+            '<div class="min-w-0"><p class="truncate text-sm font-black ' + (dark ? 'text-white' : 'text-zinc-950') + '">Episode ' + number + '</p><p class="mt-1 text-xs ' + (dark ? 'text-zinc-500' : 'text-zinc-500') + '">' + (index === 0 ? 'Ready to play' : '52 min') + '</p></div>',
+            '<button type="button" class="rounded-lg px-3 py-2 text-xs font-black ' + (dark ? 'text-violet-300 hover:bg-white/10' : 'text-violet-700 hover:bg-violet-50') + ' focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Download <span class="hidden sm:inline">' + size + '</span></button>',
+          '</article>'
+        ].join('');
+      }).join('');
+    }
+
+    function seriesA() {
+      return [
+        '<main class="mx-auto max-w-[1320px] px-4 pb-32 pt-8 sm:px-6 lg:px-8">',
+          '<button type="button" data-page="library" class="mb-6 rounded-lg text-sm font-black text-zinc-600 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">&larr; Back to TV shows</button>',
+          '<div class="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_420px]">',
+            '<section>',
+              mediaFrame(false, items[4]),
+              '<div class="mt-7 flex gap-5">',
+                '<img src="' + items[4].image + '" alt="" class="hidden h-40 w-28 rounded-xl object-cover sm:block">',
+                '<div><div class="mb-3">' + typeBadge(items[4], false) + '</div><h1 class="text-3xl font-black tracking-tight">Mousetrap</h1><p class="mt-2 text-sm text-zinc-600">Season 01 - Hindi and English - Completed</p><p class="mt-4 max-w-2xl text-sm leading-7 text-zinc-600">Choose an episode before playing or downloading. The current site hides this choice inside a small download dropdown.</p></div>',
+              '</div>',
+            '</section>',
+            '<aside class="h-fit lg:sticky lg:top-28">',
+              '<div class="mb-4 flex items-end justify-between"><div><h2 class="text-xl font-black">Episodes</h2><p class="mt-1 text-xs text-zinc-500">10 files - 12.1 GB total</p></div><button type="button" class="text-sm font-black text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Download all</button></div>',
+              '<div class="space-y-2">' + episodeRows(false) + '</div>',
+            '</aside>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function downloadA() {
+      return [
+        '<main class="mx-auto max-w-5xl px-4 pb-32 pt-10 sm:px-6 lg:px-8">',
+          '<div class="grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">',
+            '<img src="' + items[9].image + '" alt="" class="aspect-[3/4] w-full rounded-2xl object-cover shadow-xl shadow-zinc-300/60">',
+            '<section class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">',
+              '<div class="mb-4">' + typeBadge(items[9], false) + '</div>',
+              '<h1 class="text-3xl font-black tracking-tight sm:text-4xl">Modern GraphQL Bootcamp</h1>',
+              '<p class="mt-3 text-base text-zinc-600">Node.js and Apollo course archive</p>',
+              '<div class="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">',
+                '<p class="font-black">Archive file, not playable media</p>',
+                '<p class="mt-1">The current site sends this RAR file into the video player. This prototype presents the correct action immediately.</p>',
+              '</div>',
+              '<dl class="mt-8 grid gap-5 sm:grid-cols-3">',
+                '<div><dt class="text-xs font-semibold text-zinc-500">Format</dt><dd class="mt-1 font-black">RAR archive</dd></div>',
+                '<div><dt class="text-xs font-semibold text-zinc-500">Size</dt><dd class="mt-1 font-black">8.87 GB</dd></div>',
+                '<div><dt class="text-xs font-semibold text-zinc-500">Added</dt><dd class="mt-1 font-black">5 years ago</dd></div>',
+              '</dl>',
+              '<div class="mt-8 flex flex-col gap-3 sm:flex-row">',
+                '<button type="button" class="rounded-xl bg-violet-600 px-6 py-3 text-sm font-black text-white hover:bg-violet-500 active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Download archive</button>',
+                '<button type="button" data-page="library" class="rounded-xl border border-zinc-200 px-6 py-3 text-sm font-black text-zinc-800 hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Back to learning</button>',
+              '</div>',
+            '</section>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function statesA() {
+      return [
+        '<main class="mx-auto max-w-6xl px-4 pb-32 pt-8 sm:px-6 lg:px-8">',
+          sectionHeading('System states', 'Designed states make the extension predictable when data is loading, missing, or unavailable.', false),
+          '<div class="grid gap-6 lg:grid-cols-3">',
+            '<section class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">',
+              '<h2 class="text-lg font-black">Loading</h2><p class="mt-2 text-sm text-zinc-600">Poster-shaped skeletons preserve layout.</p>',
+              '<div class="mt-6 grid grid-cols-3 gap-3">',
+                '<div class="aspect-[3/4] animate-pulse rounded-xl bg-zinc-200"></div><div class="aspect-[3/4] animate-pulse rounded-xl bg-zinc-200"></div><div class="aspect-[3/4] animate-pulse rounded-xl bg-zinc-200"></div>',
+              '</div>',
+            '</section>',
+            '<section class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">',
+              '<h2 class="text-lg font-black">No results</h2><p class="mt-2 text-sm leading-6 text-zinc-600">Nothing matched "GraphQL 2027". Try a shorter title or clear the content-type filter.</p>',
+              '<button type="button" data-page="search" class="mt-6 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-black hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Clear filters</button>',
+            '</section>',
+            '<section class="rounded-2xl border border-rose-200 bg-rose-50 p-6 shadow-sm">',
+              '<h2 class="text-lg font-black text-rose-950">Server unavailable</h2><p class="mt-2 text-sm leading-6 text-rose-900">The file host did not respond. Your current page and filters are preserved.</p>',
+              '<button type="button" class="mt-6 rounded-xl bg-rose-900 px-4 py-2.5 text-sm font-black text-white hover:bg-rose-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500">Try again</button>',
+            '</section>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function shellA(state, content) {
+      return [
+        '<div class="min-h-[100dvh] bg-zinc-50 text-zinc-950">',
+          '<header class="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/95 backdrop-blur">',
+            '<div class="mx-auto flex h-20 max-w-[1440px] items-center gap-5 px-4 sm:px-6 lg:px-8">',
+              brand(false),
+              '<nav aria-label="Primary pages" class="hidden flex-1 items-center gap-1 lg:flex">' + pageTabs(state, true) + '</nav>',
+              '<div class="ml-auto hidden w-full max-w-md md:block">' + searchForm(state, false, false) + '</div>',
+              '<button type="button" data-browse class="shrink-0 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-black hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Browse</button>',
+            '</div>',
+            '<div class="border-t border-zinc-100 px-4 py-2 lg:hidden"><nav aria-label="Prototype pages" class="grid grid-cols-4 gap-1">' + pageTabs(state, true) + '</nav></div>',
+          '</header>',
+          content,
+        '</div>'
+      ].join('');
+    }
+
+    function sidebarB(state) {
+      const activeGroups = groups.map(function(group) {
+        return [
+          '<section class="border-b border-zinc-200 py-4 last:border-b-0">',
+            '<h3 class="px-3 text-xs font-black uppercase tracking-[0.14em] text-zinc-400">' + group.name + '</h3>',
+            '<div class="mt-2 space-y-0.5">',
+              group.categories.slice(0, group.name === 'Movies' ? 5 : 3).map(function(category) {
+                return '<button type="button" data-category="' + category[0] + '" class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"><span class="truncate">' + category[0] + '</span><span class="ml-2 text-xs font-medium text-zinc-400">' + category[1].toLocaleString() + '</span></button>';
+              }).join(''),
+              '<button type="button" data-browse class="mt-1 px-3 py-2 text-xs font-black text-violet-700 hover:text-violet-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">See all ' + group.categories.length + '</button>',
+            '</div>',
+          '</section>'
+        ].join('');
+      }).join('');
+      return [
+        '<aside class="hidden w-72 shrink-0 border-r border-zinc-200 bg-white xl:block">',
+          '<div class="sticky top-0 max-h-[100dvh] overflow-y-auto p-5">',
+            brand(false),
+            '<button type="button" data-page="home" class="mt-6 w-full rounded-xl bg-zinc-950 px-4 py-3 text-left text-sm font-black text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Overview</button>',
+            activeGroups,
+          '</div>',
+        '</aside>'
+      ].join('');
+    }
+
+    function toolbarB(state) {
+      return [
+        '<header class="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6">',
+          '<div class="mx-auto flex max-w-[1500px] items-center gap-3">',
+            '<div class="xl:hidden">' + brand(false) + '</div>',
+            '<div class="hidden min-w-0 flex-1 xl:block">' + searchForm(state, false, false) + '</div>',
+            '<nav aria-label="Prototype pages" class="ml-auto hidden gap-1 lg:flex">' + pageTabs(state, true) + '</nav>',
+            '<button type="button" data-browse class="ml-auto rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-black hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 lg:ml-0">Categories</button>',
+          '</div>',
+          '<nav aria-label="Prototype pages mobile" class="mt-3 grid grid-cols-4 gap-1 lg:hidden">' + pageTabs(state, true) + '</nav>',
+        '</header>'
+      ].join('');
+    }
+
+    function homeB(state) {
+      return [
+        '<main class="mx-auto max-w-[1500px] px-4 pb-32 pt-7 sm:px-6">',
+          '<div class="grid gap-6 lg:grid-cols-[1fr_320px]">',
+            '<section class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">',
+              '<div class="flex flex-col justify-between gap-4 border-b border-zinc-200 p-5 sm:flex-row sm:items-end">',
+                '<div><h1 class="text-2xl font-black tracking-tight">Recently added</h1><p class="mt-1 text-sm text-zinc-600">A compact queue for fast scanning.</p></div>',
+                filters(false),
+              '</div>',
+              '<div>' + items.slice(0, 8).map(rowB).join('') + '</div>',
+              '<button type="button" data-page="library" class="m-4 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-black hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Open full library</button>',
+            '</section>',
+            '<aside class="space-y-6">',
+              '<section class="rounded-2xl bg-zinc-950 p-6 text-white">',
+                '<p class="text-xs font-bold text-violet-300">CATALOG SNAPSHOT</p>',
+                '<p class="mt-3 text-4xl font-black tracking-tight">45 categories</p>',
+                '<p class="mt-2 text-sm leading-6 text-zinc-400">One searchable catalog for every file type on the server.</p>',
+                '<button type="button" data-browse class="mt-6 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Browse categories</button>',
+              '</section>',
+              '<section class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">',
+                '<h2 class="text-lg font-black">Quick access</h2>',
+                '<div class="mt-4 space-y-2">',
+                  '<button type="button" data-category="English Movies" class="flex w-full items-center justify-between rounded-xl bg-zinc-100 px-4 py-3 text-sm font-bold hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"><span>English Movies</span><span>16,224</span></button>',
+                  '<button type="button" data-category="Software" class="flex w-full items-center justify-between rounded-xl bg-zinc-100 px-4 py-3 text-sm font-bold hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"><span>Software</span><span>433</span></button>',
+                  '<button type="button" data-category="Learning" class="flex w-full items-center justify-between rounded-xl bg-zinc-100 px-4 py-3 text-sm font-bold hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"><span>Learning</span><span>28</span></button>',
+                '</div>',
+              '</section>',
+            '</aside>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function libraryB(state) {
+      return [
+        '<main class="mx-auto max-w-[1500px] px-4 pb-32 pt-7 sm:px-6">',
+          '<div class="mb-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">',
+            sectionHeading(escapeHtml(state.category), 'A list-first view exposes the most useful metadata without hiding actions behind posters.', false),
+            filters(false),
+          '</div>',
+          '<section class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">',
+            '<div class="hidden grid-cols-[56px_minmax(0,1fr)_110px_100px_auto] gap-3 border-b border-zinc-200 bg-zinc-50 px-3 py-3 text-xs font-black uppercase tracking-[0.12em] text-zinc-400 sm:grid"><span>Cover</span><span>Name</span><span>Type</span><span>Added</span><span class="text-right">Action</span></div>',
+            items.map(rowB).join(''),
+            '<div class="flex items-center justify-between p-4"><p class="text-xs text-zinc-500">12 sample items</p><button type="button" data-load-more class="rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-black hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Load more</button></div>',
+          '</section>',
+        '</main>'
+      ].join('');
+    }
+
+    function searchB(state) {
+      return [
+        '<main class="mx-auto max-w-[1500px] px-4 pb-32 pt-7 sm:px-6">',
+          sectionHeading('Search: ' + escapeHtml(state.query), 'Results stay inside the catalog instead of appearing as a non-interactive header table.', false),
+          '<div class="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">',
+            '<aside class="h-fit rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"><h2 class="font-black">Refine</h2><div class="mt-5 space-y-4"><label class="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" checked class="size-4 accent-violet-600"> Courses</label><label class="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" class="size-4 accent-violet-600"> Movies</label><label class="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" class="size-4 accent-violet-600"> Software</label></div><button type="button" data-page="states" class="mt-6 text-sm font-black text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">View empty state</button></aside>',
+            '<section class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">' + rowB(items[9]) + '</section>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function detailB(series) {
+      const current = series ? items[4] : items[0];
+      return [
+        '<main class="mx-auto max-w-[1500px] px-4 pb-32 pt-7 sm:px-6">',
+          '<div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_440px]">',
+            '<section class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">',
+              mediaFrame(false, current),
+              '<div class="mt-6 flex flex-col gap-5 sm:flex-row">',
+                '<img src="' + current.image + '" alt="" class="h-44 w-32 rounded-xl object-cover">',
+                '<div class="min-w-0"><div class="mb-3">' + typeBadge(current, false) + '</div><h1 class="text-3xl font-black tracking-tight">' + current.title + '</h1><p class="mt-2 text-sm text-zinc-600">' + current.subtitle + '</p><div class="mt-6">' + metaGrid(false, series) + '</div></div>',
+              '</div>',
+            '</section>',
+            '<aside>',
+              series
+                ? '<div class="mb-4 flex items-end justify-between"><div><h2 class="text-xl font-black">Episode queue</h2><p class="mt-1 text-xs text-zinc-500">Pick before play or download</p></div><button type="button" class="text-sm font-black text-violet-700">Download all</button></div><div class="space-y-2">' + episodeRows(false) + '</div>'
+                : '<section class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"><h2 class="text-xl font-black">Ready to watch</h2><p class="mt-2 text-sm leading-6 text-zinc-600">The file host is reachable on the local network.</p><button type="button" class="mt-6 w-full rounded-xl bg-violet-600 px-5 py-3 text-sm font-black text-white hover:bg-violet-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Download ' + current.size + '</button></section>',
+            '</aside>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function downloadB() {
+      return [
+        '<main class="mx-auto max-w-[1200px] px-4 pb-32 pt-7 sm:px-6">',
+          '<section class="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">',
+            '<div class="grid gap-6 p-6 md:grid-cols-[160px_minmax(0,1fr)_220px] md:items-center">',
+              '<img src="' + items[9].image + '" alt="" class="aspect-[3/4] w-40 rounded-xl object-cover">',
+              '<div><div class="mb-3">' + typeBadge(items[9], false) + '</div><h1 class="text-2xl font-black">Modern GraphQL Bootcamp</h1><p class="mt-2 text-sm text-zinc-600">RAR archive - 8.87 GB - Added 5 years ago</p><p class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">Corrected behavior: archives download directly and never enter the video player.</p></div>',
+              '<div class="grid gap-3"><button type="button" class="rounded-xl bg-violet-600 px-5 py-3 text-sm font-black text-white hover:bg-violet-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Download archive</button><button type="button" data-page="library" class="rounded-xl border border-zinc-200 px-5 py-3 text-sm font-black hover:border-violet-300 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">Cancel</button></div>',
+            '</div>',
+          '</section>',
+        '</main>'
+      ].join('');
+    }
+
+    function shellB(state, content) {
+      return [
+        '<div class="flex min-h-[100dvh] bg-zinc-100 text-zinc-950">',
+          sidebarB(state),
+          '<div class="min-w-0 flex-1">',
+            toolbarB(state),
+            content,
+          '</div>',
+        '</div>'
+      ].join('');
+    }
+
+    function headerC(state) {
+      return [
+        '<header class="sticky top-0 z-50 border-b border-white/10 bg-zinc-950/95 backdrop-blur">',
+          '<div class="mx-auto flex h-20 max-w-[1500px] items-center gap-5 px-4 sm:px-6 lg:px-8">',
+            brand(true),
+            '<nav aria-label="Prototype pages" class="hidden flex-1 items-center justify-center gap-1 lg:flex">' + pageTabs(state, true) + '</nav>',
+            '<button type="button" data-browse class="ml-auto rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-black text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Browse 45</button>',
+          '</div>',
+          '<div class="border-t border-white/5 px-4 py-2 lg:hidden"><nav aria-label="Prototype pages mobile" class="grid grid-cols-4 gap-1">' + pageTabs(state, true) + '</nav></div>',
+        '</header>'
+      ].join('');
+    }
+
+    function homeC(state) {
+      return [
+        '<main class="mx-auto max-w-[1500px] px-4 pb-32 pt-6 sm:px-6 lg:px-8">',
+          '<section class="relative min-h-[620px] overflow-hidden rounded-2xl bg-zinc-900">',
+            '<img src="' + items[0].image + '" alt="" class="absolute inset-0 h-full w-full object-cover opacity-60">',
+            '<span class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/65 to-transparent"></span>',
+            '<span class="relative flex min-h-[620px] max-w-3xl flex-col justify-end p-7 sm:p-12">',
+              '<span class="mb-4 block">' + typeBadge(items[0], true) + '</span>',
+              '<h1 class="text-4xl font-black tracking-tight text-white sm:text-6xl">A Sad and Beautiful World</h1>',
+              '<p class="mt-5 max-w-xl text-base leading-7 text-zinc-300">Stream or download the newest addition from the local server.</p>',
+              '<div class="mt-7 flex flex-wrap gap-3"><button type="button" data-page="detail" class="rounded-xl bg-white px-6 py-3 text-sm font-black text-zinc-950 hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Open movie</button><button type="button" data-page="library" class="rounded-xl border border-white/20 bg-black/20 px-6 py-3 text-sm font-black text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Explore library</button></div>',
+            '</span>',
+          '</section>',
+          '<section class="mt-12">',
+            '<div class="mb-6 flex items-end justify-between"><div><h2 class="text-2xl font-black text-white">Fresh on the server</h2><p class="mt-2 text-sm text-zinc-500">Poster shelves with actions on selection.</p></div><button type="button" data-page="library" class="text-sm font-black text-violet-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">View all</button></div>',
+            '<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">' + items.slice(1, 7).map(function(item) { return cardC(item, false); }).join('') + '</div>',
+          '</section>',
+          '<section class="mt-12 rounded-2xl border border-white/10 bg-white/5 p-6">',
+            '<div class="grid gap-5 lg:grid-cols-[1fr_420px] lg:items-center"><div><h2 class="text-2xl font-black text-white">Find any file quickly</h2><p class="mt-2 text-sm leading-6 text-zinc-400">Search across movies, games, software, shows, books, cartoons, and learning resources.</p></div>' + searchForm(state, true, false) + '</div>',
+          '</section>',
+        '</main>'
+      ].join('');
+    }
+
+    function libraryC(state) {
+      return [
+        '<main class="mx-auto max-w-[1500px] px-4 pb-32 pt-8 sm:px-6 lg:px-8">',
+          '<div class="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">',
+            sectionHeading(escapeHtml(state.category), 'A media-first catalog with the same functional controls and clear file metadata.', true),
+            filters(true),
+          '</div>',
+          '<div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">',
+            items.map(function(item, index) { return cardC(item, index === 0 || index === 7); }).join(''),
+          '</div>',
+          '<div class="mt-12 flex justify-center"><button type="button" data-load-more class="rounded-xl border border-white/10 bg-white/5 px-6 py-3 text-sm font-black text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Load more items</button></div>',
+        '</main>'
+      ].join('');
+    }
+
+    function searchC(state) {
+      return [
+        '<main class="mx-auto max-w-6xl px-4 pb-32 pt-10 sm:px-6 lg:px-8">',
+          sectionHeading('Search the server', 'Results remain visual without sacrificing type, size, and recency.', true),
+          searchForm(state, true, true),
+          '<div class="mt-8 grid gap-6 rounded-2xl border border-white/10 bg-white/5 p-5 sm:grid-cols-[180px_minmax(0,1fr)_auto] sm:items-center">',
+            '<img src="' + items[9].image + '" alt="" class="aspect-[3/4] w-full rounded-xl object-cover">',
+            '<div><div class="mb-3">' + typeBadge(items[9], true) + '</div><h2 class="text-2xl font-black text-white">Modern GraphQL Bootcamp</h2><p class="mt-2 text-sm text-zinc-400">Node.js and Apollo - 8.87 GB - 2,498 hits</p><p class="mt-5 text-sm leading-6 text-zinc-500">Archive file. Download is the primary action.</p></div>',
+            '<button type="button" data-page="download" class="rounded-xl bg-white px-5 py-3 text-sm font-black text-zinc-950 hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Open result</button>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function detailC(series) {
+      const current = series ? items[4] : items[0];
+      return [
+        '<main class="mx-auto max-w-[1500px] px-4 pb-32 pt-6 sm:px-6 lg:px-8">',
+          mediaFrame(true, current),
+          '<div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px]">',
+            '<section>',
+              '<div class="mb-4">' + typeBadge(current, true) + '</div>',
+              '<h1 class="text-4xl font-black tracking-tight text-white sm:text-5xl">' + current.title + '</h1>',
+              '<p class="mt-3 text-base text-zinc-400">' + current.subtitle + '</p>',
+              '<div class="mt-8 max-w-2xl">' + metaGrid(true, series) + '</div>',
+            '</section>',
+            '<aside>',
+              series
+                ? '<div class="mb-4 flex items-end justify-between"><div><h2 class="text-xl font-black text-white">Choose an episode</h2><p class="mt-1 text-xs text-zinc-500">10 files - 12.1 GB total</p></div><button type="button" class="text-sm font-black text-violet-300">Download all</button></div><div class="space-y-2">' + episodeRows(true) + '</div>'
+                : '<section class="rounded-2xl border border-white/10 bg-white/5 p-6"><h2 class="text-xl font-black text-white">Download</h2><p class="mt-2 text-sm leading-6 text-zinc-400">1080p WEBRip - 2.62 GB</p><button type="button" class="mt-6 w-full rounded-xl bg-violet-600 px-5 py-3 text-sm font-black text-white hover:bg-violet-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Download movie</button></section>',
+            '</aside>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function downloadC() {
+      return [
+        '<main class="mx-auto max-w-6xl px-4 pb-32 pt-10 sm:px-6 lg:px-8">',
+          '<section class="grid gap-8 overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-6 md:grid-cols-[240px_minmax(0,1fr)] md:p-8">',
+            '<img src="' + items[9].image + '" alt="" class="aspect-[3/4] w-full rounded-2xl object-cover">',
+            '<div class="self-center"><div class="mb-4">' + typeBadge(items[9], true) + '</div><h1 class="text-4xl font-black tracking-tight text-white">Modern GraphQL Bootcamp</h1><p class="mt-3 text-zinc-400">Node.js and Apollo course archive</p><div class="mt-7 rounded-xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm leading-6 text-amber-100"><p class="font-black">Archive file</p><p class="mt-1">This content downloads directly. It is never mounted in the video player.</p></div><div class="mt-8 flex flex-wrap gap-3"><button type="button" class="rounded-xl bg-white px-6 py-3 text-sm font-black text-zinc-950 hover:bg-zinc-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Download 8.87 GB</button><button type="button" data-page="library" class="rounded-xl border border-white/10 px-6 py-3 text-sm font-black text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Back to library</button></div></div>',
+          '</section>',
+        '</main>'
+      ].join('');
+    }
+
+    function statesC() {
+      return [
+        '<main class="mx-auto max-w-6xl px-4 pb-32 pt-10 sm:px-6 lg:px-8">',
+          sectionHeading('System states', 'Visible, calm feedback for loading, empty, and error conditions.', true),
+          '<div class="grid gap-6 lg:grid-cols-3">',
+            '<section class="rounded-2xl border border-white/10 bg-white/5 p-6"><h2 class="text-lg font-black text-white">Loading</h2><div class="mt-6 grid grid-cols-3 gap-3"><div class="aspect-[3/4] animate-pulse rounded-xl bg-white/10"></div><div class="aspect-[3/4] animate-pulse rounded-xl bg-white/10"></div><div class="aspect-[3/4] animate-pulse rounded-xl bg-white/10"></div></div></section>',
+            '<section class="rounded-2xl border border-white/10 bg-white/5 p-6"><h2 class="text-lg font-black text-white">No results</h2><p class="mt-2 text-sm leading-6 text-zinc-400">Try a shorter title or remove one filter.</p><button type="button" data-page="search" class="mt-6 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">Clear filters</button></section>',
+            '<section class="rounded-2xl border border-rose-400/20 bg-rose-400/10 p-6"><h2 class="text-lg font-black text-rose-100">Server unavailable</h2><p class="mt-2 text-sm leading-6 text-rose-200/80">The page and filters stay in place while you retry.</p><button type="button" class="mt-6 rounded-xl bg-rose-100 px-4 py-2.5 text-sm font-black text-rose-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300">Try again</button></section>',
+          '</div>',
+        '</main>'
+      ].join('');
+    }
+
+    function shellC(state, content) {
+      return [
+        '<div class="min-h-[100dvh] bg-zinc-950 text-white">',
+          headerC(state),
+          content,
+        '</div>'
+      ].join('');
+    }
+
+    function renderVariantA(state) {
+      let content = homeA(state);
+      if (state.page === 'library') content = libraryA(state);
+      if (state.page === 'search') content = searchA(state);
+      if (state.page === 'detail') content = detailA();
+      if (state.page === 'series') content = seriesA();
+      if (state.page === 'download') content = downloadA();
+      if (state.page === 'states') content = statesA();
+      return shellA(state, content);
+    }
+
+    function renderVariantB(state) {
+      let content = homeB(state);
+      if (state.page === 'library') content = libraryB(state);
+      if (state.page === 'search') content = searchB(state);
+      if (state.page === 'detail') content = detailB(false);
+      if (state.page === 'series') content = detailB(true);
+      if (state.page === 'download') content = downloadB();
+      if (state.page === 'states') content = statesA();
+      return shellB(state, content);
+    }
+
+    function renderVariantC(state) {
+      let content = homeC(state);
+      if (state.page === 'library') content = libraryC(state);
+      if (state.page === 'search') content = searchC(state);
+      if (state.page === 'detail') content = detailC(false);
+      if (state.page === 'series') content = detailC(true);
+      if (state.page === 'download') content = downloadC();
+      if (state.page === 'states') content = statesC();
+      return shellC(state, content);
+    }
+
+    function render() {
+      const state = getState();
+      const app = document.getElementById('app');
+      let content = renderVariantA(state);
+      if (state.variant === 'B') content = renderVariantB(state);
+      if (state.variant === 'C') content = renderVariantC(state);
+      app.innerHTML = content + browsePanel(state) + prototypeSwitcher(state);
+      bindInteractions();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    function bindInteractions() {
+      document.querySelectorAll('[data-page]').forEach(function(button) {
+        button.addEventListener('click', function() {
+          const page = button.getAttribute('data-page');
+          const query = page === 'search' ? (document.querySelector('[data-search-input]')?.value || 'GraphQL') : null;
+          setParams({ page: page, q: query });
+        });
+      });
+
+      document.querySelectorAll('[data-variant]').forEach(function(button) {
+        button.addEventListener('click', function() {
+          setParams({ variant: button.getAttribute('data-variant') });
+        });
+      });
+
+      document.querySelectorAll('[data-category]').forEach(function(button) {
+        button.addEventListener('click', function() {
+          setParams({ page: 'library', category: button.getAttribute('data-category') });
+        });
+      });
+
+      document.querySelectorAll('[data-browse]').forEach(function(button) {
+        button.addEventListener('click', function() {
+          document.querySelector('[data-browse-overlay]').classList.remove('hidden');
+          document.querySelector('[data-close-browse]').focus();
+        });
+      });
+
+      document.querySelectorAll('[data-close-browse]').forEach(function(button) {
+        button.addEventListener('click', function() {
+          document.querySelector('[data-browse-overlay]').classList.add('hidden');
+        });
+      });
+
+      document.querySelectorAll('[data-search-form]').forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+          event.preventDefault();
+          const input = form.querySelector('input[name="q"]');
+          setParams({ page: 'search', q: input && input.value ? input.value : 'GraphQL' });
+        });
+      });
+
+      document.querySelectorAll('[data-search-input]').forEach(function(input) {
+        const suggestions = input.closest('form').querySelector('[data-suggestions]');
+        input.addEventListener('input', function() {
+          suggestions.classList.toggle('hidden', input.value.trim().length < 2);
+        });
+        input.addEventListener('focus', function() {
+          if (input.value.trim().length >= 2) suggestions.classList.remove('hidden');
+        });
+      });
+
+      document.querySelectorAll('[data-load-more]').forEach(function(button) {
+        button.addEventListener('click', function() {
+          button.textContent = '12 more items loaded';
+          button.disabled = true;
+          button.classList.add('opacity-60');
+        });
+      });
+    }
+
+    document.addEventListener('keydown', function(event) {
+      const target = event.target;
+      if (target.matches('input, textarea, [contenteditable="true"]')) return;
+      const keys = Object.keys(variants);
+      const state = getState();
+      const index = keys.indexOf(state.variant);
+      if (event.key === 'ArrowLeft') setParams({ variant: keys[(index - 1 + keys.length) % keys.length] });
+      if (event.key === 'ArrowRight') setParams({ variant: keys[(index + 1) % keys.length] });
+      if (event.key === 'Escape') document.querySelector('[data-browse-overlay]')?.classList.add('hidden');
+    });
+
+    window.addEventListener('popstate', render);
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-31T01:20:00+06:00",
+  "title": "Design System: ICC Lens",
+  "extensions": {
+    "colorMeta": {
+      "violet-action": {
+        "role": "primary",
+        "displayName": "Lens Violet",
+        "canonical": "#7c3aed",
+        "tonalRamp": [
+          "#2e1065",
+          "#4c1d95",
+          "#5b21b6",
+          "#7c3aed",
+          "#8b5cf6",
+          "#a78bfa",
+          "#ddd6fe",
+          "#f5f3ff"
+        ]
+      },
+      "violet-wash": {
+        "role": "primary",
+        "displayName": "Violet Wash",
+        "canonical": "#ddd6fe",
+        "tonalRamp": [
+          "#2e1065",
+          "#4c1d95",
+          "#6d28d9",
+          "#8b5cf6",
+          "#a78bfa",
+          "#c4b5fd",
+          "#ddd6fe",
+          "#f5f3ff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Catalog Ink",
+        "canonical": "#18181b",
+        "tonalRamp": [
+          "#18181b",
+          "#27272a",
+          "#3f3f46",
+          "#52525b",
+          "#71717a",
+          "#a1a1aa",
+          "#d4d4d8",
+          "#f4f4f5"
+        ]
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#52525b",
+        "tonalRamp": [
+          "#18181b",
+          "#27272a",
+          "#3f3f46",
+          "#52525b",
+          "#71717a",
+          "#a1a1aa",
+          "#d4d4d8",
+          "#f4f4f5"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "#f4f4f5",
+        "tonalRamp": [
+          "#18181b",
+          "#3f3f46",
+          "#71717a",
+          "#a1a1aa",
+          "#d4d4d8",
+          "#e4e4e7",
+          "#f4f4f5",
+          "#fafafa"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Field White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#18181b",
+          "#52525b",
+          "#a1a1aa",
+          "#d4d4d8",
+          "#e4e4e7",
+          "#f4f4f5",
+          "#fafafa",
+          "#ffffff"
+        ]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Recovery Red",
+        "canonical": "#991b1b",
+        "tonalRamp": [
+          "#450a0a",
+          "#7f1d1d",
+          "#991b1b",
+          "#dc2626",
+          "#f87171",
+          "#fca5a5",
+          "#fee2e2",
+          "#fef2f2"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Catalog Display",
+        "purpose": "Featured titles and the largest media promise."
+      },
+      "popup-display": {
+        "displayName": "Popup Display",
+        "purpose": "The tightly stacked statement in the 360px control surface."
+      },
+      "headline": {
+        "displayName": "Page Headline",
+        "purpose": "Category and detail-page titles."
+      },
+      "title": {
+        "displayName": "Poster Title",
+        "purpose": "Compact two-line catalog card titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Descriptions, plots, explanations, and trust copy."
+      },
+      "label": {
+        "displayName": "Operational Label",
+        "purpose": "Metadata, counts, and control support."
+      },
+      "micro": {
+        "displayName": "Micro Status",
+        "purpose": "Short compact-surface status markers only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "poster-rest",
+        "value": "0 8px 24px rgba(24,24,27,0.08)",
+        "purpose": "Low ambient separation beneath catalog artwork."
+      },
+      {
+        "name": "poster-hover",
+        "value": "0 18px 36px rgba(24,24,27,0.16)",
+        "purpose": "The poster card's restrained hover lift."
+      },
+      {
+        "name": "floating-layer",
+        "value": "0 18px 44px rgba(24,24,27,0.16)",
+        "purpose": "Search suggestions and compact floating layers."
+      },
+      {
+        "name": "dialog-layer",
+        "value": "0 28px 80px rgba(0,0,0,0.35)",
+        "purpose": "The category sheet above its dark scrim."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-standard",
+        "value": "150ms ease",
+        "purpose": "Color, focus, switch, and small control state changes."
+      },
+      {
+        "name": "card-response",
+        "value": "300ms ease",
+        "purpose": "Poster lift and shadow response."
+      },
+      {
+        "name": "media-response",
+        "value": "500ms ease",
+        "purpose": "Subtle poster image scaling."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Makes changes immediate when reduced motion is requested."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Utility Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The near-black universal action that shifts toward Lens Violet on hover.",
+      "html": "<button class=\"ds-button-primary\">Open ICC server</button>",
+      "css": ".ds-button-primary { min-height: 48px; border: 0; border-radius: 12px; padding: 12px 16px; background: #18181b; color: #fff; box-shadow: 0 8px 22px rgba(24,24,27,.18); font: 900 14px/1 'Archivo Variable', 'Arial Narrow', sans-serif; transition: transform 150ms ease, background-color 150ms ease; cursor: pointer; } .ds-button-primary:hover { transform: translateY(-2px); background: #7c3aed; } .ds-button-primary:focus-visible { outline: 4px solid #ddd6fe; outline-offset: 2px; } .ds-button-primary:active { transform: translateY(0); }"
+    },
+    {
+      "name": "Accent Action",
+      "kind": "button",
+      "refersTo": "button-accent",
+      "description": "The violet catalog-specific action used for browsing, play, and download emphasis.",
+      "html": "<button class=\"ds-button-accent\">Browse another category</button>",
+      "css": ".ds-button-accent { min-height: 44px; border: 0; border-radius: 12px; padding: 12px 20px; background: #7c3aed; color: #fff; font: 900 14px/1 'Archivo Variable', 'Arial Narrow', sans-serif; transition: background-color 150ms ease, transform 150ms ease; cursor: pointer; } .ds-button-accent:hover { background: #6d28d9; transform: translateY(-1px); } .ds-button-accent:focus-visible { outline: 4px solid #ddd6fe; outline-offset: 2px; } .ds-button-accent:active { transform: translateY(0); }"
+    },
+    {
+      "name": "Catalog Search",
+      "kind": "input",
+      "refersTo": "field-search",
+      "description": "The 44px paper search field with an integrated dark action.",
+      "html": "<form class=\"ds-search\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-4-4\"/></svg><input aria-label=\"Search the ICC catalog\" placeholder=\"Search movies, games, software…\"><button>Search</button></form>",
+      "css": ".ds-search { display: flex; min-height: 44px; align-items: center; border: 1px solid #d4d4d8; border-radius: 12px; background: #f4f4f5; color: #52525b; font-family: 'Archivo Variable', 'Arial Narrow', sans-serif; } .ds-search:focus-within { border-color: #7c3aed; background: #fff; box-shadow: 0 0 0 4px #ede9fe; } .ds-search svg { width: 20px; margin-left: 12px; fill: none; stroke: currentColor; stroke-width: 2; } .ds-search input { min-width: 0; flex: 1; border: 0; padding: 10px 12px; background: transparent; color: #18181b; font: 700 14px/1.4 inherit; outline: none; } .ds-search button { min-height: 36px; margin: 4px; border: 0; border-radius: 8px; padding: 0 16px; background: #18181b; color: #fff; font: 900 12px/1 inherit; cursor: pointer; } .ds-search button:hover { background: #7c3aed; } .ds-search button:focus-visible { outline: 3px solid #ddd6fe; }"
+    },
+    {
+      "name": "Poster Card",
+      "kind": "card",
+      "refersTo": "card-poster",
+      "description": "The open paper card with 3:4 artwork and an explicit consequence badge.",
+      "html": "<a class=\"ds-poster-card\" href=\"#\"><span class=\"ds-poster-art\"><span class=\"ds-poster-badge\">▷ Media</span></span><strong>A Sad and Beautiful World</strong><small>3 hours ago · 63 Hits</small></a>",
+      "css": ".ds-poster-card { display: block; width: 180px; color: #18181b; text-decoration: none; font-family: 'Archivo Variable', 'Arial Narrow', sans-serif; } .ds-poster-art { position: relative; display: block; aspect-ratio: 3/4; overflow: hidden; border-radius: 16px; background: linear-gradient(145deg,#24133f,#7c3aed); box-shadow: 0 8px 24px rgba(24,24,27,.08); transition: transform 300ms ease, box-shadow 300ms ease; } .ds-poster-card:hover .ds-poster-art { transform: translateY(-4px); box-shadow: 0 18px 36px rgba(24,24,27,.16); } .ds-poster-badge { position: absolute; top: 12px; left: 12px; border-radius: 9999px; padding: 4px 10px; background: rgba(24,24,27,.92); color: #fff; font-size: 11px; font-weight: 900; } .ds-poster-card strong { display: block; margin-top: 12px; font-size: 15px; line-height: 1.25; } .ds-poster-card small { display: block; margin-top: 8px; color: #52525b; font-size: 12px; font-weight: 700; } .ds-poster-card:focus-visible { outline: 4px solid #ddd6fe; outline-offset: 4px; border-radius: 16px; }"
+    },
+    {
+      "name": "Content Chip",
+      "kind": "chip",
+      "description": "A compact type or context label used on posters and detail pages.",
+      "html": "<span class=\"ds-content-chip\">Series · 10 episodes</span>",
+      "css": ".ds-content-chip { display: inline-flex; align-items: center; border-radius: 9999px; padding: 4px 12px; background: #ddd6fe; color: #5b21b6; font: 900 12px/1.2 'Archivo Variable', 'Arial Narrow', sans-serif; }"
+    },
+    {
+      "name": "Lens Enable Switch",
+      "kind": "custom",
+      "description": "The popup's single persisted preference in its enabled state.",
+      "html": "<button class=\"ds-switch\" role=\"switch\" aria-checked=\"true\" aria-label=\"Use ICC Lens on the ICC site\"><span></span></button>",
+      "css": ".ds-switch { position: relative; width: 56px; height: 32px; border: 2px solid #7c3aed; border-radius: 9999px; background: #7c3aed; transition: background-color 150ms ease; cursor: pointer; } .ds-switch span { position: absolute; top: 2px; left: 4px; width: 24px; height: 24px; border-radius: 9999px; background: #fff; box-shadow: 0 3px 9px rgba(24,24,27,.24); transform: translateX(20px); transition: transform 150ms ease; } .ds-switch:focus-visible { outline: 4px solid #ddd6fe; outline-offset: 2px; } .ds-switch[aria-checked='false'] { border-color: #a1a1aa; background: #e4e4e7; } .ds-switch[aria-checked='false'] span { transform: translateX(0); }"
+    },
+    {
+      "name": "Media Frame",
+      "kind": "custom",
+      "description": "The wide dark player plane with its selected-file action row.",
+      "html": "<section class=\"ds-media-frame\"><div class=\"ds-media-stage\">Selected media</div><footer><strong>S01E01</strong><button>Download</button></footer></section>",
+      "css": ".ds-media-frame { overflow: hidden; border-radius: 16px; background: #18181b; color: #fff; box-shadow: 0 22px 54px rgba(24,24,27,.18); font-family: 'Archivo Variable', 'Arial Narrow', sans-serif; } .ds-media-stage { display: grid; aspect-ratio: 16/9; place-items: center; background: #000; color: #a1a1aa; font-size: 14px; font-weight: 700; } .ds-media-frame footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(255,255,255,.1); padding: 12px 20px; } .ds-media-frame footer strong { font-size: 14px; } .ds-media-frame button { min-height: 40px; border: 0; border-radius: 12px; padding: 0 16px; background: #7c3aed; color: #fff; font-weight: 900; cursor: pointer; } .ds-media-frame button:hover { background: #8b5cf6; } .ds-media-frame button:focus-visible { outline: 4px solid #c4b5fd; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Violet Screening Room",
+    "overview": "ICC Lens treats a local file server like a compact editorial catalog: quiet zinc architecture frames poster-led content, while deep ink and a single violet action voice make the next consequence obvious. It feels deliberate and media-aware without pretending to be a commercial streaming service.\n\nDensity serves scanning. Headlines are compressed and confident, metadata stays compact, and the layout spends its largest areas on actual titles, posters, players, and episode rows. The approved Design A hierarchy is the authority; decoration never outranks the catalog or the path back to the original server.",
+    "keyCharacteristics": [
+      "Poster-first catalog scanning on a cool neutral canvas.",
+      "One violet action voice paired with deep near-black utility controls.",
+      "Heavy, tightly tracked Archivo headlines and compact operational labels.",
+      "Clear differences between details, play, episode selection, and download.",
+      "Responsive stacking that keeps search and recovery actions available at narrow widths."
+    ],
+    "rules": [
+      {
+        "name": "The Violet Is a Verb Rule",
+        "body": "Violet marks an action, selection, focus, or product identity. Do not turn entire routine sections into violet decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Contrast Is Evidence Rule",
+        "body": "Metadata must use a neutral dark enough for AA contrast on both paper and white surfaces; subtlety never depends on washed-out gray.",
+        "section": "colors"
+      },
+      {
+        "name": "The Headline Earns the Width Rule",
+        "body": "Large type belongs to the current title or promise, never to generic section chrome.",
+        "section": "typography"
+      },
+      {
+        "name": "The Compact Does Not Mean Faint Rule",
+        "body": "Reduce metadata with size and space, not weak weight or insufficient contrast.",
+        "section": "typography"
+      },
+      {
+        "name": "The Content Owns the Viewport Rule",
+        "body": "Extra width goes to the feature, grid, or player—not to settings cards or decorative side rails.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Until Useful Rule",
+        "body": "A shadow must explain interaction or layering. Routine white sections stay border-separated and flat.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Two-Radius Rule",
+        "body": "Default to 12px for controls and 16px for content surfaces; introduce a different radius only when size or circular geometry requires it.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do preserve the server-authored featured rail followed by the approved Design A poster grid.",
+      "Do keep search, Browse, and original-site recovery reachable at every supported width.",
+      "Do name whether an action opens details, plays media, selects an episode, or starts a download.",
+      "Do keep focus rings, AA contrast, reduced-motion behavior, and minimum touch targets intact.",
+      "Do let file, movie, and series details use visibly different primary surfaces."
+    ],
+    "donts": [
+      "Don't autoplay the featured carousel, repeat it on category/search views, or let it dominate the first mobile viewport.",
+      "Don't scatter violet across routine containers or add a second accent color for normal actions.",
+      "Don't hide episode selection or download behind unlabeled icon-only controls.",
+      "Don't place every section in a floating card or give every neutral surface a shadow.",
+      "Don't remove the path back to the original server or visually disguise server-provided links."
+    ]
+  }
+}
