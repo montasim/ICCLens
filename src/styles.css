@@ -1,0 +1,68 @@
+@import '@fontsource-variable/archivo';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@theme inline {
+  --font-sans: 'Archivo Variable', 'Arial Narrow', sans-serif;
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 700;
+  --color-violet-700: #6f4cc3;
+  --color-violet-950: #4c1d95;
+  --color-zinc-900: #27272a;
+  --color-zinc-950: #18181b;
+}
+
+@layer base {
+  :root,
+  :host {
+    color-scheme: light;
+    font-family: var(--font-sans);
+  }
+
+  :host {
+    display: block;
+    min-width: 320px;
+    min-height: 100dvh;
+  }
+
+  * {
+    box-sizing: border-box;
+    scrollbar-color: #7c3aed #e4e4e7;
+  }
+
+  html,
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100%;
+  }
+
+  button,
+  input {
+    font: inherit;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+  }
+
+  ::selection {
+    background: #ddd6fe;
+    color: #27272a;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  :host {
+    scroll-behavior: auto !important;
+  }
+
+  .animate-spin {
+    animation: none !important;
+  }
+}
