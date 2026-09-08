@@ -1,0 +1,17 @@
+{
+  "name": "ICC Lens",
+  "shortName": "ICC Lens",
+  "slug": "icc-lens",
+  "description": "A clearer, faster catalog interface for the ICC local media server.",
+  "homepage": "http://10.16.100.244/",
+  "repository": "https://github.com/montasim/ICCLens",
+  "supportEmail": "",
+  "privacyUrl": "https://github.com/montasim/ICCLens/blob/main/privacy-policy.md",
+  "theme": {
+    "primary": "#7c3aed",
+    "ink": "#18181b",
+    "paper": "#f4f4f5",
+    "signal": "#ddd6fe"
+  },
+  "releaseStatus": "development"
+}

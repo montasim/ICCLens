@@ -1,0 +1,12 @@
+{
+  "source": "product.config.json",
+  "generatedAt": "2026-08-31T14:00:48.651Z",
+  "outputs": [
+    "logo.svg",
+    "icon/16.png",
+    "icon/32.png",
+    "icon/48.png",
+    "icon/96.png",
+    "icon/128.png"
+  ]
+}
