@@ -37,7 +37,7 @@ ICC Lens does not operate a second catalog or scrape data into a remote service.
 - Series details can export the server-provided episode URLs as a local UTF-8 text file, one absolute URL per line, while retaining each episode's individual download action.
 - Uses the existing page DOM and same-origin server actions; it does not add accounts, bypass authentication, upload files, or modify server data.
 - Preserves original URLs and session parameters when the server supplies them and repairs empty player-page session parameters from the current URL when possible.
-- Stores only whether ICC Lens is enabled. No page content or search query is persisted.
+- Stores whether ICC Lens is enabled, the active theme preference, and local watch-history (with fixed retention limits and clear-history controls). No page content or search query is persisted.
 - No analytics, telemetry, advertising, third-party API, remote executable code, or background synchronization.
 - Does not launch, control, or exchange data with external download managers; users import the generated text file themselves.
 - If parsing or mounting fails, the original page remains visible.

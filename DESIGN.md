@@ -217,7 +217,7 @@ Controls use compact 8–12px corners; product surfaces, artwork, dialogs, media
 
 ### Navigation
 
-The sticky white header carries product identity, search, the five server-provided category groups, and original-site recovery. On wide screens, Movies, Games, Software, TV Series, and Others are first-level navigation controls whose dropdowns expose their existing subcategories. At narrower widths those five controls collapse to Browse, which opens the complete inventory in one grouped modal sheet. Beneath the header, a quiet **Home › Current page** breadcrumb appears on catalog, category, search, empty, and detail views; Home is a 44px link, the current label truncates safely, and `aria-current="page"` preserves its meaning for assistive technology. Every action keeps an accessible name.
+The sticky white header carries product identity, search, the five server-provided category groups, an icon-only theme control (toggling between the ISPCine-derived light and dark themes), and original-site recovery. On wide screens, Movies, Games, Software, TV Series, and Others are first-level navigation controls whose dropdowns expose their existing subcategories. At narrower widths those five controls collapse to Browse, which opens the complete inventory in one grouped modal sheet. Beneath the header, a quiet **Home › Current page** breadcrumb appears on catalog, category, search, empty, and detail views; Home is a 44px link, the current label truncates safely, and `aria-current="page"` preserves its meaning for assistive technology. Every action keeps an accessible name.
 
 ### Catalog Poster Card
 

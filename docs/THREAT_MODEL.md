@@ -10,7 +10,7 @@
 
 ## Trust boundaries
 
-The ICC server, its HTML, its command endpoints, and every media URL it returns are untrusted inputs. Chrome extension storage is trusted only to persist the normalized boolean preference. React, WXT's isolated shadow root, and the extension package are trusted code boundaries. Destination media servers are outside ICC Lens and receive requests only after normal page navigation or explicit user action.
+The ICC server, its HTML, its command endpoints, and every media URL it returns are untrusted inputs. Chrome extension storage is trusted to persist local preferences (`enabled`, `theme`) and bounded `watchHistory`. React, WXT's isolated shadow root, and the extension package are trusted code boundaries. Destination media servers are outside ICC Lens and receive requests only after normal page navigation or explicit user action.
 
 ## Threats and mitigations
 
@@ -21,7 +21,7 @@ The ICC server, its HTML, its command endpoints, and every media URL it returns 
 | Page links use `javascript:`, `data:`, or another unsafe scheme | Resolve and keep only HTTP(S) URLs at the adapter boundary                                                         | Parser tests and source review                       |
 | Server mislabels an archive as video                            | Determine playability from a strict media-extension allowlist instead of MIME alone                                | Archive and media allowlist tests                    |
 | Extension begins observing unrelated browsing                   | Build verifier requires the literal `http://10.16.100.244/*` content-script match and rejects host permissions     | `verify-build.mjs` and `verify-package.mjs`          |
-| Page/search/media data leaks through persistence or telemetry   | Persist only `{ enabled: boolean }`; ship no analytics, remote service, or page-data storage path                  | Storage tests, dependency review, and privacy policy |
+| Page/search/media data leaks through persistence or telemetry   | Persist only `{ enabled, theme, watchHistory }`; enforce max-item retention, clear-history control, and no remote service | Storage tests, dependency review, and privacy policy |
 | A UI replacement traps the user                                 | Provide **Original site**, restore-original, and popup disable controls; unmount restores title and element state  | UI and unpacked browser tests                        |
 | Background lifecycle causes data loss                           | Background has no product state; the content script reconstructs everything from the document and local preference | Architecture review                                  |
 

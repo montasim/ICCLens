@@ -6,7 +6,7 @@ ICC Lens changes the interface of the private-network site at `http://10.16.100.
 
 ICC Lens does not collect, transmit, sell, share, or retain that page information. It has no analytics, telemetry, advertising, account, synchronization service, or developer-operated server. Page data stays in the current tab and is discarded when the page closes or navigates.
 
-The only persisted value is the user's enabled/disabled preference. It is stored as a boolean in Chrome's local extension storage and remains in the Chrome profile until the user clears extension data or removes ICC Lens. It is not treated as sensitive data and is not synchronized by the extension.
+Persisted values include the enabled/disabled preference, visual theme selection, and local watch-history (title, episode, and playback timestamp to resume media). These are stored in Chrome's local extension storage and remain in the Chrome profile until the user clears extension data, clears watch history, or removes ICC Lens. They are not treated as sensitive data and are not synchronized by the extension.
 
 Opening a poster, stream, trailer, or download follows a link supplied by the ICC site. The destination server and Chrome then handle that request under their own policies. ICC Lens does not proxy or copy the media.
 
