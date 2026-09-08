@@ -4,4 +4,6 @@ coverage
 node_modules
 playwright-report
 test-results
+prototype/icc-ftp-ui-prototype.html
+prototype/index.html
 pnpm-lock.yaml
