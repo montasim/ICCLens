@@ -23,6 +23,18 @@ assert(
   /^#[0-9a-f]{6}$/iu.test(config.theme.primary),
   'Theme colors must use six-digit hex values.',
 )
+assert(
+  /^#[0-9a-f]{6}$/iu.test(config.theme.actionForeground),
+  'Action foreground must use a six-digit hex value.',
+)
+assert(
+  /^#[0-9a-f]{6}$/iu.test(config.theme.actionSurface),
+  'Action surface must use a six-digit hex value.',
+)
+assert(
+  /^#[0-9a-f]{6}$/iu.test(config.theme.actionHover),
+  'Action hover must use a six-digit hex value.',
+)
 
 if (releaseConfigOnly) {
   const serialized = JSON.stringify(config)
@@ -34,7 +46,7 @@ if (releaseConfigOnly) {
   process.exit(0)
 }
 
-const output = path.join(root, '.output', 'chrome-mv3')
+const output = path.join(root, '.output')
 const manifest = JSON.parse(
   await readFile(path.join(output, 'manifest.json'), 'utf8'),
 )

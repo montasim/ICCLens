@@ -49,7 +49,7 @@ pnpm build
 1. Open `chrome://extensions`.
 2. Enable **Developer mode**.
 3. Select **Load unpacked**.
-4. Choose the generated `.output/chrome-mv3` directory.
+4. Choose the generated `.output` directory.
 5. Visit `http://10.16.100.244/` while connected to the ICC network.
 
 ICC Lens activates automatically on the supported origin. Use its toolbar popup to turn the enhanced interface off or on for all ICC pages in the current Chrome profile. The **View original page** action remains available when the enhanced page cannot safely represent the server response.

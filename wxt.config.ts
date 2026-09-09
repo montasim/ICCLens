@@ -10,6 +10,7 @@ const icons = {
 }
 
 export default defineConfig({
+  outDirTemplate: '',
   modules: ['@wxt-dev/module-react'],
   vite: (): WxtViteConfig => ({
     plugins: tailwindcss() as NonNullable<WxtViteConfig['plugins']>,
