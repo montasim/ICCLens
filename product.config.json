@@ -8,7 +8,10 @@
   "supportEmail": "",
   "privacyUrl": "https://github.com/montasim/ICCLens/blob/main/privacy-policy.md",
   "theme": {
-    "primary": "#7c3aed",
+    "primary": "#fbbf24",
+    "actionSurface": "#fbbf24",
+    "actionHover": "#f59e0b",
+    "actionForeground": "#ffffff",
     "ink": "#18181b",
     "paper": "#f4f4f5",
     "signal": "#ddd6fe"

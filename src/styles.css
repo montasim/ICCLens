@@ -1,15 +1,75 @@
-@import '@fontsource-variable/archivo';
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+@import '@fontsource/ibm-plex-mono/latin-600.css';
+@import './generated-theme.css';
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
 @theme inline {
-  --font-sans: 'Archivo Variable', 'Arial Narrow', sans-serif;
-  --font-weight-bold: 600;
+  --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display:
+    'Space Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
   --font-weight-extrabold: 700;
-  --color-violet-700: #6f4cc3;
-  --color-violet-950: #4c1d95;
-  --color-zinc-900: #27272a;
-  --color-zinc-950: #18181b;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-divider: var(--border);
+  --color-content: var(--text-primary);
+  --color-content-secondary: var(--text-secondary);
+  --color-content-muted: var(--text-muted);
+  --color-action: var(--action);
+  --color-action-hover: var(--action-hover);
+  --color-action-foreground: var(--action-foreground);
+  --color-action-on-surface: var(--action-on-surface);
+  --color-support: var(--support);
+  --color-support-hover: var(--support-hover);
+  --color-support-foreground: var(--support-foreground);
+  --color-player: var(--player-accent);
+  --color-player-hover: var(--player-accent-hover);
+  --color-player-backdrop: var(--player-black);
+  --color-player-panel: var(--player-panel);
+  --color-player-black: var(--player-black);
+  --color-player-black-90: var(--player-black-90);
+  --color-player-black-75: var(--player-black-75);
+  --color-player-black-70: var(--player-black-70);
+  --color-player-black-50: var(--player-black-50);
+  --color-player-black-45: var(--player-black-45);
+  --color-player-black-40: var(--player-black-40);
+  --color-player-black-35: var(--player-black-35);
+  --color-player-black-25: var(--player-black-25);
+  --color-player-black-15: var(--player-black-15);
+  --color-player-black-10: var(--player-black-10);
+  --color-player-black-07: var(--player-black-07);
+  --color-player-black-05: var(--player-black-05);
+  --color-player-white: var(--player-white);
+  --color-player-white-90: var(--player-white-90);
+  --color-player-white-70: var(--player-white-70);
+  --color-player-white-60: var(--player-white-60);
+  --color-player-white-55: var(--player-white-55);
+  --color-player-white-25: var(--player-white-25);
+  --color-player-white-20: var(--player-white-20);
+  --color-player-white-15: var(--player-white-15);
+  --color-player-white-10: var(--player-white-10);
+  --color-player-white-07: var(--player-white-07);
+  --color-player-white-05: var(--player-white-05);
+  --color-player-shadow-30: var(--player-shadow-30);
+  --color-player-shadow-28: var(--player-shadow-28);
+  --color-player-shadow-26: var(--player-shadow-26);
+  --color-player-shadow-24: var(--player-shadow-24);
+  --color-player-shadow-22: var(--player-shadow-22);
+  --color-player-shadow-20: var(--player-shadow-20);
+  --color-player-shadow-18: var(--player-shadow-18);
+  --color-player-shadow-50: var(--player-shadow-50);
+  --color-player-shadow-45: var(--player-shadow-45);
+  --color-player-shadow-40: var(--player-shadow-40);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-action-shadow-18: var(--action-shadow-18);
 }
 
 @layer base {
@@ -17,6 +77,12 @@
   :host {
     color-scheme: light;
     font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--canvas);
+    text-rendering: optimizeLegibility;
   }
 
   :host {
@@ -25,9 +91,14 @@
     min-height: 100dvh;
   }
 
+  :host([data-theme='dark']),
+  [data-theme='dark'] {
+    color-scheme: dark;
+  }
+
   * {
     box-sizing: border-box;
-    scrollbar-color: #7c3aed #e4e4e7;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   }
 
   html,
@@ -38,21 +109,88 @@
   }
 
   button,
-  input {
+  input,
+  select,
+  textarea {
     font: inherit;
   }
 
-  button:not(:disabled) {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
     cursor: pointer;
   }
 
   a {
+    color: inherit;
     text-underline-offset: 0.2em;
   }
 
   ::selection {
-    background: #ddd6fe;
-    color: #27272a;
+    background: var(--selection);
+    color: var(--selection-foreground);
+  }
+}
+
+@layer components {
+  .icc-container {
+    width: 100%;
+    max-width: 1656px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  .icc-page-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.875rem, 4vw, 2.25rem);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+  }
+
+  .icc-section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .icc-metadata {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .icc-watch-progress {
+    appearance: none;
+    border: 0;
+    background: var(--player-white-25);
+  }
+
+  .icc-watch-progress::-webkit-progress-bar {
+    background: var(--player-white-25);
+  }
+
+  .icc-watch-progress::-webkit-progress-value {
+    background: var(--action);
+  }
+
+  .icc-watch-progress::-moz-progress-bar {
+    background: var(--action);
+  }
+
+  @media (min-width: 48rem) {
+    .icc-container {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .icc-container {
+      padding-inline: 2rem;
+    }
   }
 }
 

@@ -10,7 +10,7 @@ const generatedAt = new Date().toISOString()
 
 await mkdir(iconDirectory, { recursive: true })
 
-const logo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title"><title>${escapeXml(config.name)} logo: catalog cards brought into focus</title><rect width="128" height="128" rx="25" fill="${config.theme.ink}"/><path d="M40 29H27v70h13M88 29h13v70H88" fill="none" stroke="${config.theme.primary}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="39" y="43" width="14" height="48" rx="4" fill="${config.theme.paper}"/><rect x="57" y="34" width="14" height="57" rx="4" fill="${config.theme.signal}"/><rect x="75" y="40" width="14" height="51" rx="4" fill="${config.theme.paper}"/></svg>`
+const logo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title"><title>${escapeXml(config.name)} logo</title><rect width="128" height="128" rx="18" fill="${config.theme.primary}"/><path d="M105 0h23v128H91z" fill="#55d6be"/><text x="17" y="78" fill="${config.theme.actionForeground}" font-family="Arial,Helvetica,sans-serif" font-size="39" font-weight="700" letter-spacing="-2">ICC</text></svg>`
 
 await writeFile(path.join(root, 'public', 'logo.svg'), logo)
 for (const size of [16, 32, 48, 96, 128]) {
@@ -22,7 +22,139 @@ for (const size of [16, 32, 48, 96, 128]) {
 
 await writeFile(
   path.join(root, 'src', 'generated-theme.css'),
-  `:root {\n  --primary: ${config.theme.primary};\n  --ink: ${config.theme.ink};\n  --paper: ${config.theme.paper};\n  --signal: ${config.theme.signal};\n  --ring: ${config.theme.primary};\n}\n`,
+  `:root,
+:host,
+[data-theme='light'] {
+  --canvas: #f7f2e8;
+  --surface: #fffaf0;
+  --surface-muted: #efe7d8;
+  --border: #d8cbb8;
+  --text-primary: #000000;
+  --text-secondary: #4d4439;
+  --text-muted: #675f54;
+  --action: ${config.theme.actionSurface};
+  --action-hover: ${config.theme.actionHover};
+  --action-foreground: ${config.theme.actionForeground};
+  --action-on-surface: #854d0e;
+  --support: #55d6be;
+  --support-hover: #79e1ce;
+  --support-foreground: #062d27;
+  --player-accent: var(--action);
+  --player-accent-hover: var(--action-hover);
+  --player-black: #000000;
+  --player-black-90: rgba(0, 0, 0, 0.90);
+  --player-black-75: rgba(0, 0, 0, 0.75);
+  --player-black-70: rgba(0, 0, 0, 0.70);
+  --player-black-50: rgba(0, 0, 0, 0.50);
+  --player-black-45: rgba(0, 0, 0, 0.45);
+  --player-black-40: rgba(0, 0, 0, 0.40);
+  --player-black-35: rgba(0, 0, 0, 0.35);
+  --player-black-25: rgba(0, 0, 0, 0.25);
+  --player-black-15: rgba(0, 0, 0, 0.15);
+  --player-black-10: rgba(0, 0, 0, 0.10);
+  --player-black-07: rgba(0, 0, 0, 0.07);
+  --player-black-05: rgba(0, 0, 0, 0.05);
+  --player-white: #ffffff;
+  --player-white-90: rgba(255, 255, 255, 0.90);
+  --player-white-70: rgba(255, 255, 255, 0.70);
+  --player-white-60: rgba(255, 255, 255, 0.60);
+  --player-white-55: rgba(255, 255, 255, 0.55);
+  --player-white-25: rgba(255, 255, 255, 0.25);
+  --player-white-20: rgba(255, 255, 255, 0.20);
+  --player-white-15: rgba(255, 255, 255, 0.15);
+  --player-white-10: rgba(255, 255, 255, 0.10);
+  --player-white-07: rgba(255, 255, 255, 0.07);
+  --player-white-05: rgba(255, 255, 255, 0.05);
+  --player-shadow-30: rgba(0, 0, 0, 0.30);
+  --player-shadow-28: rgba(0, 0, 0, 0.28);
+  --player-shadow-26: rgba(0, 0, 0, 0.26);
+  --player-shadow-24: rgba(0, 0, 0, 0.24);
+  --player-shadow-20: rgba(0, 0, 0, 0.20);
+  --player-shadow-18: rgba(0, 0, 0, 0.18);
+  --player-shadow-45: rgba(0, 0, 0, 0.45);
+  --player-shadow-50: rgba(0, 0, 0, 0.50);
+  --player-shadow-40: rgba(0, 0, 0, 0.40);
+  --player-shadow-22: rgba(0, 0, 0, 0.22);
+  --player-panel: #080c12;
+  --danger-foreground: #fffaf0;
+  --danger: #991b1b;
+  --focus-ring: ${config.theme.primary};
+  --action-shadow-18: color-mix(in srgb, var(--action) 18%, transparent);
+  --selection: #fde68a;
+  --selection-foreground: #000000;
+  --scrollbar-thumb: #c48a20;
+  --scrollbar-track: #efe7d8;
+  --primary: var(--action);
+  --ink: var(--text-primary);
+  --paper: var(--canvas);
+  --signal: #fef3c7;
+  --ring: var(--focus-ring);
+}
+
+:host([data-theme='dark']),
+[data-theme='dark'] {
+  --canvas: #05080d;
+  --surface: #0b1018;
+  --surface-muted: #121824;
+  --border: #293142;
+  --text-primary: #f6f0e7;
+  --text-secondary: #d8d4ce;
+  --text-muted: #aab0b9;
+  --action: ${config.theme.actionSurface};
+  --action-hover: ${config.theme.actionHover};
+  --action-foreground: ${config.theme.actionForeground};
+  --action-on-surface: ${config.theme.primary};
+  --support: #55d6be;
+  --support-hover: #79e1ce;
+  --support-foreground: #062d27;
+  --player-accent: var(--action);
+  --player-accent-hover: var(--action-hover);
+  --player-black: #000000;
+  --player-black-90: rgba(0, 0, 0, 0.90);
+  --player-black-75: rgba(0, 0, 0, 0.75);
+  --player-black-70: rgba(0, 0, 0, 0.70);
+  --player-black-50: rgba(0, 0, 0, 0.50);
+  --player-black-45: rgba(0, 0, 0, 0.45);
+  --player-black-40: rgba(0, 0, 0, 0.40);
+  --player-black-35: rgba(0, 0, 0, 0.35);
+  --player-black-25: rgba(0, 0, 0, 0.25);
+  --player-black-15: rgba(0, 0, 0, 0.15);
+  --player-black-10: rgba(0, 0, 0, 0.10);
+  --player-black-07: rgba(0, 0, 0, 0.07);
+  --player-black-05: rgba(0, 0, 0, 0.05);
+  --player-white: #ffffff;
+  --player-white-90: rgba(255, 255, 255, 0.90);
+  --player-white-70: rgba(255, 255, 255, 0.70);
+  --player-white-60: rgba(255, 255, 255, 0.60);
+  --player-white-55: rgba(255, 255, 255, 0.55);
+  --player-white-25: rgba(255, 255, 255, 0.25);
+  --player-white-20: rgba(255, 255, 255, 0.20);
+  --player-white-15: rgba(255, 255, 255, 0.15);
+  --player-white-10: rgba(255, 255, 255, 0.10);
+  --player-white-07: rgba(255, 255, 255, 0.07);
+  --player-white-05: rgba(255, 255, 255, 0.05);
+  --player-shadow-30: rgba(0, 0, 0, 0.30);
+  --player-shadow-28: rgba(0, 0, 0, 0.28);
+  --player-shadow-26: rgba(0, 0, 0, 0.26);
+  --player-shadow-24: rgba(0, 0, 0, 0.24);
+  --player-shadow-20: rgba(0, 0, 0, 0.20);
+  --player-shadow-18: rgba(0, 0, 0, 0.18);
+  --player-shadow-45: rgba(0, 0, 0, 0.45);
+  --player-shadow-50: rgba(0, 0, 0, 0.50);
+  --player-shadow-40: rgba(0, 0, 0, 0.40);
+  --player-shadow-22: rgba(0, 0, 0, 0.22);
+  --player-panel: #080c12;
+  --danger-foreground: #fffaf0;
+  --danger: #fca5a5;
+  --focus-ring: ${config.theme.primary};
+  --action-shadow-18: color-mix(in srgb, var(--action) 18%, transparent);
+  --selection: #92400e;
+  --selection-foreground: #fffaf0;
+  --scrollbar-thumb: #d59b2a;
+  --scrollbar-track: #121824;
+  --signal: #3a2a0c;
+}
+`,
 )
 
 await writeFile(
