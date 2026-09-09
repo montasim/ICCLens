@@ -19,10 +19,10 @@ export function CatalogCard({ item, imageLoading = 'lazy' }: CatalogCardProps) {
     <article className="min-w-0">
       <a
         href={item.href}
-        className="group block rounded-2xl focus:outline-none focus:ring-4 focus:ring-violet-200 motion-reduce:transform-none"
+        className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action motion-reduce:transform-none"
         aria-label={`${item.title}. ${item.action === 'download' ? 'Starts a download.' : 'Opens details.'}`}
       >
-        <span className="relative block aspect-[3/4] overflow-hidden rounded-2xl bg-zinc-200 shadow-[0_8px_24px_rgba(24,24,27,0.08)] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_18px_36px_rgba(24,24,27,0.16)] motion-reduce:transform-none motion-reduce:transition-none">
+        <span className="relative block aspect-[3/4] overflow-hidden rounded-2xl bg-surface-muted shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none">
           {showImage ? (
             <img
               src={item.imageHref ?? undefined}
@@ -36,7 +36,7 @@ export function CatalogCard({ item, imageLoading = 'lazy' }: CatalogCardProps) {
             <span
               data-icc-lens-poster-placeholder=""
               aria-hidden="true"
-              className="grid size-full place-items-center bg-violet-100 text-violet-700"
+              className="grid size-full place-items-center bg-surface-muted text-content"
             >
               <HugeIcon
                 icon={
@@ -46,15 +46,17 @@ export function CatalogCard({ item, imageLoading = 'lazy' }: CatalogCardProps) {
               />
             </span>
           )}
-          <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent p-4 pt-16 text-white">
-            <strong className="line-clamp-1 text-[15px] font-bold leading-[1.3] tracking-[-0.01em] group-hover:line-clamp-none group-focus:line-clamp-none">
+          <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-player-panel via-player-panel/60 to-transparent p-4 pt-16 text-player-white">
+            <strong className="line-clamp-1 text-base font-bold leading-tight group-hover:line-clamp-none group-focus:line-clamp-none">
               {item.title}
             </strong>
           </span>
         </span>
-        <span className="mt-3 flex items-center justify-between gap-3 text-xs font-semibold text-zinc-600">
+        <span className="mt-3 flex items-center justify-between gap-3 text-xs text-content-muted">
           {item.age ? <span>{item.age}</span> : <span>Recently added</span>}
-          {item.hits ? <span>{item.hits}</span> : null}
+          {item.hits ? (
+            <span className="font-semibold text-content">{item.hits}</span>
+          ) : null}
         </span>
       </a>
     </article>

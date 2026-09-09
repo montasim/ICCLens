@@ -124,7 +124,7 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
     <section
       aria-labelledby="icc-lens-featured-title"
       aria-roledescription="carousel"
-      className="mx-auto max-w-[1512px] px-4 pt-6 sm:px-6 lg:px-8 lg:pt-8"
+      className="icc-container pt-5"
       onMouseEnter={() => setIsInteractionPaused(true)}
       onMouseLeave={() => setIsInteractionPaused(false)}
       onFocusCapture={() => setIsInteractionPaused(true)}
@@ -188,7 +188,7 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
               type="button"
               onClick={() => goToPage(currentPage - 1)}
               aria-label="Previous featured titles"
-              className="absolute left-0 top-1/2 z-10 grid size-12 -translate-x-1 -translate-y-1/2 place-items-center rounded-r-xl bg-violet-700 text-white shadow-[0_10px_24px_rgba(76,29,149,0.28)] transition hover:bg-violet-600 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:-translate-x-2"
+              className="absolute left-0 top-1/2 z-10 grid size-12 -translate-x-1 -translate-y-1/2 place-items-center rounded-r-lg bg-action text-action-foreground shadow-[0_10px_24px_var(--player-shadow-28)] transition hover:bg-action-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-action/45 sm:-translate-x-2"
             >
               <HugeIcon icon={ArrowLeft02Icon} className="size-6" />
             </button>
@@ -196,7 +196,7 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
               type="button"
               onClick={() => goToPage(currentPage + 1)}
               aria-label="Next featured titles"
-              className="absolute right-0 top-1/2 z-10 grid size-12 translate-x-1 -translate-y-1/2 place-items-center rounded-l-xl bg-violet-700 text-white shadow-[0_10px_24px_rgba(76,29,149,0.28)] transition hover:bg-violet-600 focus:outline-none focus:ring-4 focus:ring-violet-200 sm:translate-x-2"
+              className="absolute right-0 top-1/2 z-10 grid size-12 translate-x-1 -translate-y-1/2 place-items-center rounded-l-lg bg-action text-action-foreground shadow-[0_10px_24px_var(--player-shadow-28)] transition hover:bg-action-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-action/45 sm:translate-x-2"
             >
               <HugeIcon icon={ArrowRight02Icon} className="size-6" />
             </button>
@@ -206,7 +206,7 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
 
       {pageCount > 1 ? (
         <div
-          className="mt-4 flex items-center justify-center gap-1"
+          className="mt-2 flex items-center justify-center gap-1"
           aria-label="Featured carousel pages"
         >
           {!prefersReducedMotion ? (
@@ -218,7 +218,7 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
                   ? 'Resume automatic featured scrolling'
                   : 'Pause automatic featured scrolling'
               }
-              className="grid size-11 place-items-center rounded-xl text-xs font-bold text-zinc-600 transition hover:bg-white hover:text-zinc-900 focus:outline-none focus:ring-4 focus:ring-violet-100"
+              className="grid size-11 place-items-center rounded-lg text-xs font-semibold text-content transition hover:bg-surface-muted hover:text-content focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-action/45"
             >
               <HugeIcon
                 icon={isUserPaused ? PlayIcon : PauseIcon}
@@ -233,13 +233,11 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
               onClick={() => goToPage(index)}
               aria-label={`Go to featured page ${index + 1}`}
               aria-current={currentPage === index ? 'true' : undefined}
-              className="grid size-11 place-items-center rounded-xl focus:outline-none focus:ring-4 focus:ring-violet-100"
+              className="grid size-11 place-items-center rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-action/45"
             >
               <span
                 className={`h-2 rounded-full transition-[width,background-color] ${
-                  currentPage === index
-                    ? 'w-6 bg-violet-700'
-                    : 'w-2 bg-zinc-300'
+                  currentPage === index ? 'w-6 bg-action' : 'w-2 bg-divider'
                 }`}
               />
             </button>

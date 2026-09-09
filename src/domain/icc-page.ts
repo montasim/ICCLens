@@ -49,6 +49,14 @@ export interface MediaSource {
   mediaType: string | null
   size: string | null
   playable: boolean
+  seasonNumber?: number | null
+  episodeNumber?: number | null
+}
+
+export interface MediaSeason {
+  number: number
+  label: string
+  episodes: MediaSource[]
 }
 
 export interface DetailMetadata {
@@ -64,7 +72,9 @@ export interface DetailPage {
   homeHref: string
   groups: CategoryGroup[]
   metadata: DetailMetadata[]
+  description: string[]
   sources: MediaSource[]
+  seasons?: MediaSeason[]
   trailerHref: string | null
   related: CatalogItem[]
 }

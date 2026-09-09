@@ -10,9 +10,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { HugeIcon } from '../../components/ui/huge-icon'
 import { sortCatalogItems, type CatalogSort } from '../../domain/catalog-sort'
 import type { CatalogPage } from '../../domain/icc-page'
+import type { WatchHistoryEntry } from '../../domain/preferences'
 import { CatalogCard } from './catalog-card'
 import { CatalogSortMenu } from './catalog-sort-menu'
 import { FeaturedCarousel } from './featured-carousel'
+import { ContinueWatching } from './continue-watching'
 import { PageBreadcrumb } from './page-breadcrumb'
 
 interface CatalogViewProps {
@@ -21,6 +23,8 @@ interface CatalogViewProps {
   loadMoreError: string | null
   onBrowse(): void
   onLoadMore(): void
+  watchHistory?: WatchHistoryEntry[]
+  onClearWatchHistory?(): void
 }
 
 export function CatalogView({
@@ -29,6 +33,8 @@ export function CatalogView({
   loadMoreError,
   onBrowse,
   onLoadMore,
+  watchHistory = [],
+  onClearWatchHistory,
 }: CatalogViewProps) {
   const [sort, setSort] = useState<CatalogSort>('server')
   const sortedItems = useMemo(
@@ -49,19 +55,35 @@ export function CatalogView({
         <FeaturedCarousel items={page.featuredItems} />
       ) : null}
 
+      {hasFeaturedCarousel && watchHistory.length ? (
+        <div className="icc-container">
+          <ContinueWatching
+            history={watchHistory}
+            items={[...page.featuredItems, ...page.items]}
+            onClear={onClearWatchHistory ?? (() => undefined)}
+          />
+        </div>
+      ) : null}
+
       <section
-        className={`mx-auto max-w-[1512px] px-4 pb-16 sm:px-6 lg:px-8 ${
-          hasFeaturedCarousel ? 'pt-10 lg:pt-14' : 'pt-6 lg:pt-8'
+        className={`icc-container pb-32 ${
+          hasFeaturedCarousel ? 'pt-6' : 'pt-5'
         }`}
       >
         {page.items.length ? (
           <>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <CatalogTitle className="text-xl font-extrabold tracking-[-0.02em] text-zinc-900 sm:text-2xl">
+                <CatalogTitle
+                  className={`font-display font-medium text-content ${
+                    hasFeaturedCarousel
+                      ? 'text-2xl tracking-[-0.025em]'
+                      : 'text-2xl tracking-[-0.03em] sm:text-3xl'
+                  }`}
+                >
                   {page.view === 'latest' ? 'Newest additions' : page.title}
                 </CatalogTitle>
-                <p className="mt-2 max-w-[65ch] text-sm font-medium leading-6 text-zinc-600">
+                <p className="mt-2 max-w-[65ch] text-sm leading-6 text-content-muted">
                   {page.view === 'latest'
                     ? 'Clear metadata, predictable actions, no date-timeline clutter.'
                     : `${page.items.length} items currently shown. Actions explain whether a click opens details or starts a download.`}
@@ -78,7 +100,7 @@ export function CatalogView({
                 <button
                   type="button"
                   onClick={onBrowse}
-                  className="min-h-11 flex-1 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-bold text-zinc-800 transition hover:border-violet-300 hover:text-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-100 sm:flex-none"
+                  className="min-h-11 flex-1 rounded-xl border border-divider bg-surface px-4 py-2.5 text-sm font-medium text-content transition hover:border-action hover:text-action-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action sm:flex-none"
                 >
                   {page.view === 'latest'
                     ? 'Browse library'
@@ -89,7 +111,7 @@ export function CatalogView({
 
             <section
               aria-label="Catalog items"
-              className="mt-7 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+              className="mt-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
             >
               {sortedItems.map((item) => (
                 <CatalogCard key={`${item.action}-${item.id}`} item={item} />
@@ -168,7 +190,7 @@ function InfiniteLoadTrigger({
       aria-live="polite"
     >
       {loading ? (
-        <span className="inline-flex items-center gap-2 text-sm font-bold text-zinc-600">
+        <span className="inline-flex items-center gap-2 text-sm font-bold text-content">
           <HugeIcon icon={RefreshIcon} className="size-4 animate-spin" />
           Loading more items…
         </span>
@@ -205,9 +227,9 @@ function EmptyCatalog({
     <section
       aria-labelledby="icc-lens-empty-title"
       aria-live="polite"
-      className="mx-auto mt-4 flex max-w-2xl flex-col items-center rounded-2xl bg-white px-6 py-12 text-center sm:px-10 sm:py-16"
+      className="mx-auto mt-4 flex max-w-2xl flex-col items-center rounded-2xl border border-divider bg-surface px-6 py-12 text-center shadow-sm sm:px-10 sm:py-16"
     >
-      <span className="grid size-16 place-items-center rounded-2xl bg-violet-100 text-violet-800">
+      <span className="grid size-16 place-items-center rounded-2xl bg-surface-muted text-content">
         <HugeIcon
           icon={isSearch ? Search01Icon : InboxIcon}
           className="size-7"
@@ -215,17 +237,17 @@ function EmptyCatalog({
       </span>
       <EmptyTitle
         id="icc-lens-empty-title"
-        className="mt-6 max-w-xl text-xl font-extrabold tracking-[-0.02em] text-zinc-900 [overflow-wrap:anywhere] sm:text-2xl"
+        className="mt-6 max-w-xl font-display text-2xl font-medium tracking-[-0.025em] text-content [overflow-wrap:anywhere]"
       >
         {title}
       </EmptyTitle>
-      <p className="mt-3 max-w-[58ch] text-sm font-medium leading-6 text-zinc-600 sm:text-base sm:leading-7">
+      <p className="mt-3 max-w-[58ch] text-sm leading-6 text-content-muted">
         {description}
       </p>
       <button
         type="button"
         onClick={onBrowse}
-        className="mt-7 min-h-11 rounded-xl bg-zinc-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-200"
+        className="mt-7 min-h-11 rounded-xl bg-action px-5 py-3 text-sm font-medium text-action-foreground transition hover:bg-action-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-action/45"
       >
         {isSearch ? 'Browse categories' : 'Choose another category'}
       </button>
@@ -254,20 +276,20 @@ function CollectionComplete({ page }: { page: CatalogPage }) {
   return (
     <section
       aria-labelledby="icc-lens-complete-title"
-      className="mt-12 border-y border-zinc-200 py-6"
+      className="mt-12 border-y border-divider py-6"
     >
       <div className="mx-auto flex max-w-2xl items-start gap-4 sm:items-center">
-        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-violet-100 text-violet-800">
+        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-surface-muted text-support">
           <HugeIcon icon={CheckmarkCircle03Icon} className="size-5" />
         </span>
         <div className="min-w-0">
           <h2
             id="icc-lens-complete-title"
-            className="text-sm font-bold text-zinc-900"
+            className="text-sm font-bold text-content"
           >
             {title}
           </h2>
-          <p className="mt-1 text-sm font-medium leading-6 text-zinc-600">
+          <p className="mt-1 text-sm leading-6 text-content-muted">
             {description}
           </p>
         </div>
@@ -287,23 +309,23 @@ function PaginationError({
     <section
       role="alert"
       aria-labelledby="icc-lens-pagination-error-title"
-      className="mx-auto mt-10 flex max-w-2xl flex-col gap-5 rounded-2xl border border-red-200 bg-red-50 px-5 py-5 text-red-950 sm:flex-row sm:items-center sm:px-6"
+      className="mx-auto mt-10 flex max-w-2xl flex-col gap-5 rounded-2xl border border-danger/30 bg-danger/10 px-5 py-5 text-danger sm:flex-row sm:items-center sm:px-6"
     >
-      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-red-100 text-red-900">
+      <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-danger/15 text-danger">
         <HugeIcon icon={TriangleAlertIcon} className="size-5" />
       </span>
       <div className="min-w-0 flex-1">
         <h2 id="icc-lens-pagination-error-title" className="text-sm font-bold">
           More titles couldn’t be loaded
         </h2>
-        <p className="mt-1 text-sm font-medium leading-6 text-red-800 [overflow-wrap:anywhere]">
+        <p className="mt-1 text-sm leading-6 [overflow-wrap:anywhere]">
           {message} Everything already shown remains available.
         </p>
       </div>
       <button
         type="button"
         onClick={onRetry}
-        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-red-900 px-4 text-sm font-bold text-white transition hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-200"
+        className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-danger px-4 text-sm font-bold text-surface transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-danger/30"
       >
         <HugeIcon icon={RefreshIcon} className="size-4" />
         Retry loading

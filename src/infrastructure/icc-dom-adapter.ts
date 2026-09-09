@@ -8,6 +8,7 @@ import {
   type DetailMetadata,
   type IccPageParseResult,
   type MediaSource,
+  type MediaSeason,
   type SearchSuggestion,
 } from '../domain/icc-page'
 
@@ -177,6 +178,7 @@ export function parseIccDocument(
   // entire media detail page into a catalog.
   if (
     pathname.endsWith('/player.php') ||
+    pathname.endsWith('/download.php') ||
     sourceDocument.querySelector('video#video-id')
   ) {
     return parseDetailPage(sourceDocument, currentUrl.href, groups, homeHref)
@@ -314,13 +316,38 @@ function parseDetailPage(
   groups: CategoryGroup[],
   homeHref: string,
 ): IccPageParseResult {
+  // Older ICC download pages predate the semantic `<main>` wrapper used by
+  // player and newer download templates. The route is already authoritative,
+  // so the document body is the safe detail boundary for those legacy pages.
+  const detailRoot =
+    sourceDocument.querySelector<HTMLElement>('main') ?? sourceDocument.body
+  const poster =
+    detailRoot.querySelector<HTMLImageElement>('.row img[src*="files/"]') ??
+    detailRoot.querySelector<HTMLImageElement>('img[src*="files/"]') ??
+    detailRoot.querySelector<HTMLImageElement>('.row img[src]')
+  const posterColumn = poster?.closest<HTMLElement>('[class*="col-"]')
+  const posterRow = poster?.closest<HTMLElement>('.row')
+  const contentColumn = posterRow
+    ? Array.from(posterRow.children).find(
+        (child): child is HTMLElement =>
+          child instanceof HTMLElement &&
+          child !== posterColumn &&
+          !child.contains(poster),
+      )
+    : undefined
   const detailsTable = Array.from(
-    sourceDocument.querySelectorAll<HTMLTableElement>('main table.ewTable'),
+    detailRoot.querySelectorAll<HTMLTableElement>('table.ewTable'),
   ).find((table) => table.querySelector('td[colspan] strong'))
-  const title = cleanText(
-    detailsTable?.querySelector('td[colspan] strong')?.textContent ??
-      sourceDocument.querySelector('main b span')?.textContent,
-  )
+  const titleElement =
+    detailsTable?.querySelector<HTMLElement>('td[colspan] strong') ??
+    detailRoot.querySelector<HTMLElement>(
+      '.panel-heading .panel-title, .panel-heading b span, .panel-heading strong, .panel-heading b, .panel-heading h1, .panel-heading h2, .panel-heading h3, .panel-heading',
+    ) ??
+    contentColumn?.querySelector<HTMLElement>(
+      '.panel-title, h1, h2, h3, b span, strong span, b, strong',
+    ) ??
+    detailRoot.querySelector<HTMLElement>('b span, h1, h2, h3')
+  const title = cleanText(titleElement?.textContent)
   if (!title) {
     return { ok: false, reason: 'The ICC detail title is missing.' }
   }
@@ -337,21 +364,18 @@ function parseDetailPage(
         .filter((entry): entry is DetailMetadata => entry !== null)
     : []
 
-  const poster =
-    sourceDocument.querySelector<HTMLImageElement>(
-      'main .row img[src*="files/"]',
-    ) ??
-    sourceDocument.querySelector<HTMLImageElement>('main img[src*="files/"]')
   const downloadAnchors = Array.from(
-    sourceDocument.querySelectorAll<HTMLAnchorElement>(
-      'main a[download][href]',
-    ),
+    detailRoot.querySelectorAll<HTMLAnchorElement>('a[href]'),
+  ).filter(
+    (anchor) =>
+      anchor.hasAttribute('download') ||
+      /\bdownload\b/iu.test(cleanText(anchor.textContent)),
   )
   const downloadDetails = new Map<
     string,
     { label: string; size: string | null }
   >()
-  for (const anchor of downloadAnchors) {
+  for (const [index, anchor] of downloadAnchors.entries()) {
     const href = normalizeHref(anchor.getAttribute('href'), locationHref)
     if (!href) continue
     const size =
@@ -360,10 +384,7 @@ function parseDetailPage(
         /\d+(?:\.\d+)?\s*(?:TB|GB|MB|KB)/iu,
       )?.[0] ||
       null
-    const label = cleanText(anchor.textContent)
-      .replace(/\bDOWNLOAD\b/giu, '')
-      .replace(size ?? '', '')
-      .trim()
+    const label = normalizeDownloadLabel(anchor.textContent, size, index)
     downloadDetails.set(href, { label, size })
   }
 
@@ -386,6 +407,9 @@ function parseDetailPage(
       mediaType: source.getAttribute('type'),
       size: download?.size ?? null,
       playable: isPlayableMediaHref(href),
+      ...parseEpisodeIdentity(
+        cleanText(source.getAttribute('title')) || download?.label || href,
+      ),
     })
   }
   for (const [href, download] of downloadDetails) {
@@ -397,6 +421,7 @@ function parseDetailPage(
       mediaType: null,
       size: download.size,
       playable: isPlayableMediaHref(href),
+      ...parseEpisodeIdentity(download.label || href),
     })
   }
 
@@ -405,12 +430,13 @@ function parseDetailPage(
     playableCount === 0
       ? 'file'
       : playableCount > 1 ||
-          sources.some((source) => /S\d{1,2}E\d{1,2}/iu.test(source.label))
+          sources.some(
+            (source) =>
+              source.seasonNumber != null && source.episodeNumber != null,
+          )
         ? 'series'
         : 'movie'
-  const trailerButton = sourceDocument.querySelector<HTMLElement>(
-    'main [data-theVideo]',
-  )
+  const trailerButton = detailRoot.querySelector<HTMLElement>('[data-theVideo]')
 
   return {
     ok: true,
@@ -422,17 +448,69 @@ function parseDetailPage(
       homeHref,
       groups,
       metadata,
+      description: parseDetailDescription(
+        detailRoot,
+        titleElement,
+        detailsTable,
+      ),
       sources,
+      seasons: groupMediaSeasons(sources),
       trailerHref: normalizeTrailerHref(
         trailerButton?.getAttribute('data-theVideo'),
         locationHref,
       ),
       related: parseCatalogItems(
-        sourceDocument.querySelector('main .news-gallery') ?? sourceDocument,
+        detailRoot.querySelector('.news-gallery') ?? detailRoot,
         locationHref,
       ).slice(0, 12),
     },
   }
+}
+
+export function parseEpisodeIdentity(value: string): {
+  seasonNumber: number | null
+  episodeNumber: number | null
+} {
+  const decoded = (() => {
+    try {
+      return decodeURIComponent(value)
+    } catch {
+      return value
+    }
+  })()
+  const patterns = [
+    /(?:^|[^a-z0-9])s(?:eason)?[\s._-]*(\d{1,3})[\s._-]*e(?:p(?:isode)?)?[\s._-]*(\d{1,4})(?:[^a-z0-9]|$)/iu,
+    /(?:^|[^a-z0-9])season[\s._-]*(\d{1,3})[^a-z0-9]+episode[\s._-]*(\d{1,4})(?:[^a-z0-9]|$)/iu,
+  ]
+  for (const pattern of patterns) {
+    const match = decoded.match(pattern)
+    if (!match) continue
+    const seasonNumber = Number(match[1])
+    const episodeNumber = Number(match[2])
+    if (seasonNumber > 0 && episodeNumber > 0) {
+      return { seasonNumber, episodeNumber }
+    }
+  }
+  return { seasonNumber: null, episodeNumber: null }
+}
+
+export function groupMediaSeasons(sources: MediaSource[]): MediaSeason[] {
+  const groups = new Map<number, MediaSource[]>()
+  for (const source of sources) {
+    if (source.seasonNumber == null || source.episodeNumber == null) continue
+    const episodes = groups.get(source.seasonNumber) ?? []
+    episodes.push(source)
+    groups.set(source.seasonNumber, episodes)
+  }
+  return [...groups.entries()]
+    .sort(([left], [right]) => left - right)
+    .map(([number, episodes]) => ({
+      number,
+      label: `Season ${number}`,
+      episodes: [...episodes].sort(
+        (left, right) => (left.episodeNumber ?? 0) - (right.episodeNumber ?? 0),
+      ),
+    }))
 }
 
 function parseCategoryGroups(
@@ -503,7 +581,7 @@ function normalizeHref(
     if (
       currentSession &&
       target.hostname === '10.16.100.244' &&
-      /\/(?:dashboard|player)\.php$/iu.test(target.pathname) &&
+      /\/(?:dashboard|download|player)\.php$/iu.test(target.pathname) &&
       !target.searchParams.get('session')
     ) {
       target.searchParams.set('session', currentSession)
@@ -544,6 +622,56 @@ function cleanText(value: string | null | undefined): string {
   return String(value ?? '')
     .replace(/\s+/gu, ' ')
     .trim()
+}
+
+function normalizeDownloadLabel(
+  value: string | null,
+  size: string | null,
+  index: number,
+): string {
+  const compact = cleanText(value)
+    .replace(/\bDOWNLOAD\b/giu, '')
+    .replace(size ?? '', '')
+    .replace(/^[\s.:#-]+|[\s.:#-]+$/gu, '')
+  const ordinal = compact.match(/^(\d{1,3})[.)-]?$/u)?.[1]
+  if (ordinal) return `File ${ordinal.padStart(2, '0')}`
+  return compact || `File ${String(index + 1).padStart(2, '0')}`
+}
+
+function parseDetailDescription(
+  detailRoot: HTMLElement,
+  titleElement: HTMLElement | null,
+  detailsTable: HTMLTableElement | undefined,
+): string[] {
+  const scope =
+    titleElement?.closest<HTMLElement>('article, [class*="col-"]') ?? detailRoot
+  const paragraphs = Array.from(scope.querySelectorAll<HTMLElement>('p, li'))
+    .filter(
+      (element) => !element.closest('a, table, .news-gallery, .load-post-body'),
+    )
+    .map((element) => cleanText(element.textContent))
+    .filter(Boolean)
+  if (paragraphs.length) return [...new Set(paragraphs)]
+
+  const clone = scope.cloneNode(true) as HTMLElement
+  clone
+    .querySelectorAll(
+      'a, button, img, video, table, .news-gallery, .load-post-body',
+    )
+    .forEach((element) => element.remove())
+  clone
+    .querySelectorAll('br')
+    .forEach((lineBreak) => lineBreak.replaceWith('\n'))
+  const description = String(clone.textContent ?? '')
+    .replace(titleElement?.textContent ?? '', '')
+    .split(/\n+/u)
+    .map(cleanText)
+    .filter(Boolean)
+  if (detailsTable) {
+    const metadataText = cleanText(detailsTable.textContent)
+    return description.filter((paragraph) => paragraph !== metadataText)
+  }
+  return [...new Set(description)]
 }
 
 function fileLabelFromHref(href: string): string {

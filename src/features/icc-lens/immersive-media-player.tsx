@@ -1,8 +1,8 @@
 import {
   Alert02Icon,
   ArrowLeft02Icon,
+  ArrowRight02Icon,
   Cancel01Icon,
-  Download04Icon,
   FitToScreenIcon,
   GoBackward10SecIcon,
   GoForward10SecIcon,
@@ -16,21 +16,35 @@ import {
 } from '@hugeicons/core-free-icons'
 import {
   type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
 
 import { HugeIcon } from '../../components/ui/huge-icon'
+import { SelectMenu } from '../../components/ui/select-menu'
 import type { MediaSource } from '../../domain/icc-page'
 
-interface ImmersiveMediaPlayerProps {
+export interface PlayerProgressUpdate {
+  source: MediaSource
+  seconds: number
+  duration: number
+}
+
+export interface ImmersiveMediaPlayerProps {
   context: string
   playRequest: number
   posterHref: string | null
   source: MediaSource
   title: string
+  episodes?: MediaSource[]
+  currentEpisodeIndex?: number
+  initialResumeSeconds?: number
+  onProgress?: (update: PlayerProgressUpdate) => void
+  onSelectEpisode?: (source: MediaSource, index: number) => void
 }
 
 type PlaybackStatus =
@@ -67,6 +81,11 @@ export function ImmersiveMediaPlayer({
   posterHref,
   source,
   title,
+  episodes = [],
+  currentEpisodeIndex = -1,
+  initialResumeSeconds = 0,
+  onProgress,
+  onSelectEpisode,
 }: ImmersiveMediaPlayerProps) {
   const rootRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -78,6 +97,8 @@ export function ImmersiveMediaPlayer({
   const controlsTimerRef = useRef<number | null>(null)
   const toastTimerRef = useRef<number | null>(null)
   const handledPlayRequestRef = useRef(0)
+  const resumeAppliedRef = useRef<string | null>(null)
+  const initialSourceHrefRef = useRef(source.href)
 
   const [immersive, setImmersive] = useState(false)
   const [status, setStatus] = useState<PlaybackStatus>({ kind: 'idle' })
@@ -90,6 +111,18 @@ export function ImmersiveMediaPlayer({
   const [previousVolume, setPreviousVolume] = useState(1)
   const [liveMessage, setLiveMessage] = useState('')
   const [toast, setToast] = useState<string | null>(null)
+  const [episodeListOpen, setEpisodeListOpen] = useState(false)
+  const [drawerSeason, setDrawerSeason] = useState(source.seasonNumber ?? 1)
+  const episodeSeasons = useMemo(
+    () =>
+      [...new Set(episodes.map((episode) => episode.seasonNumber ?? 1))].sort(
+        (left, right) => left - right,
+      ),
+    [episodes],
+  )
+  const drawerEpisodes = episodes
+    .map((episode, index) => ({ episode, index }))
+    .filter(({ episode }) => (episode.seasonNumber ?? 1) === drawerSeason)
 
   const clearControlsTimer = useCallback(() => {
     if (controlsTimerRef.current !== null) {
@@ -186,6 +219,13 @@ export function ImmersiveMediaPlayer({
 
   const exitPlayer = useCallback(() => {
     const video = videoRef.current
+    if (video) {
+      onProgress?.({
+        source,
+        seconds: video.currentTime,
+        duration: Number.isFinite(video.duration) ? video.duration : 0,
+      })
+    }
     video?.pause()
     setStatus({ kind: 'paused' })
     setShortcutsOpen(false)
@@ -199,7 +239,25 @@ export function ImmersiveMediaPlayer({
         launchButtonRef.current?.focus()
       }
     })
-  }, [clearControlsTimer])
+  }, [clearControlsTimer, onProgress, source])
+
+  const selectEpisode = useCallback(
+    (index: number) => {
+      const next = episodes[index]
+      if (!next || !onSelectEpisode) return
+      const video = videoRef.current
+      if (video) {
+        onProgress?.({
+          source,
+          seconds: video.currentTime,
+          duration: Number.isFinite(video.duration) ? video.duration : 0,
+        })
+      }
+      setEpisodeListOpen(false)
+      onSelectEpisode(next, index)
+    },
+    [episodes, onProgress, onSelectEpisode, source],
+  )
 
   const togglePlayback = useCallback(() => {
     const video = videoRef.current
@@ -216,6 +274,25 @@ export function ImmersiveMediaPlayer({
       void play()
     }
   }, [announce, enterPlayer, immersive, play, status.kind])
+
+  const handlePlaybackSurfaceClick = useCallback(
+    (event: ReactMouseEvent<HTMLElement>) => {
+      const target = event.target
+      if (
+        status.kind === 'error' ||
+        (target instanceof Element &&
+          target.closest(
+            'a, button, input, select, textarea, [data-player-controls], [data-player-shortcuts-dialog], aside',
+          ))
+      ) {
+        return
+      }
+
+      rootRef.current?.focus()
+      togglePlayback()
+    },
+    [status.kind, togglePlayback],
+  )
 
   const seek = useCallback(
     (seconds: number) => {
@@ -432,7 +509,9 @@ export function ImmersiveMediaPlayer({
     setDuration(0)
     setStatus({ kind: 'idle' })
     video.load()
-  }, [source.href])
+    resumeAppliedRef.current = null
+    setDrawerSeason(source.seasonNumber ?? 1)
+  }, [source.href, source.seasonNumber])
 
   useEffect(() => {
     if (playRequest === 0 || playRequest <= handledPlayRequestRef.current) {
@@ -510,13 +589,14 @@ export function ImmersiveMediaPlayer({
       aria-modal={immersive ? true : undefined}
       aria-label={immersive ? `Playing ${playerLabel}` : undefined}
       onKeyDown={immersive ? handleKeyDown : undefined}
+      onClick={immersive ? handlePlaybackSurfaceClick : undefined}
       onMouseMove={immersive ? revealControls : undefined}
       onPointerDown={immersive ? revealControls : undefined}
       onFocusCapture={immersive ? revealControls : undefined}
       className={
         immersive
-          ? 'fixed inset-0 z-[2147483647] h-dvh overflow-hidden bg-black text-white outline-none'
-          : 'mt-5 overflow-hidden rounded-2xl bg-zinc-950 shadow-[0_22px_54px_rgba(24,24,27,0.18)]'
+          ? 'fixed inset-0 z-[2147483647] h-dvh overflow-hidden bg-player-backdrop text-player-white outline-none'
+          : 'relative aspect-video overflow-hidden rounded-2xl bg-player-panel'
       }
     >
       <div
@@ -529,20 +609,39 @@ export function ImmersiveMediaPlayer({
           preload="metadata"
           poster={posterHref ?? undefined}
           aria-label={playerLabel}
-          className="h-full w-full bg-black object-contain"
-          onClick={immersive ? revealControls : undefined}
+          className={`h-full w-full bg-player-backdrop ${immersive ? 'cursor-pointer object-contain' : 'object-cover opacity-30 blur-sm'}`}
           onLoadedMetadata={(event) => {
             setDuration(event.currentTarget.duration)
             setVolume(
               event.currentTarget.muted ? 0 : event.currentTarget.volume,
             )
+            if (
+              resumeAppliedRef.current !== source.href &&
+              source.href === initialSourceHrefRef.current &&
+              initialResumeSeconds > 0
+            ) {
+              const endpoint = Number.isFinite(event.currentTarget.duration)
+                ? Math.max(0, event.currentTarget.duration - 1)
+                : initialResumeSeconds
+              event.currentTarget.currentTime = Math.min(
+                endpoint,
+                initialResumeSeconds,
+              )
+              setCurrentTime(event.currentTarget.currentTime)
+              resumeAppliedRef.current = source.href
+            }
           }}
           onDurationChange={(event) =>
             setDuration(event.currentTarget.duration)
           }
-          onTimeUpdate={(event) =>
-            setCurrentTime(event.currentTarget.currentTime)
-          }
+          onTimeUpdate={(event) => {
+            const seconds = event.currentTarget.currentTime
+            const mediaDuration = Number.isFinite(event.currentTarget.duration)
+              ? event.currentTarget.duration
+              : 0
+            setCurrentTime(seconds)
+            onProgress?.({ source, seconds, duration: mediaDuration })
+          }}
           onPlay={() => {
             setStatus({ kind: 'playing' })
             setToast(null)
@@ -571,28 +670,28 @@ export function ImmersiveMediaPlayer({
         </video>
 
         {!immersive ? (
-          <div className="absolute inset-0 grid place-items-center bg-black/5">
+          <div className="absolute inset-0 grid place-items-center">
             <button
               ref={launchButtonRef}
               type="button"
               onClick={enterPlayer}
-              className="grid size-20 place-items-center rounded-full bg-white text-zinc-900 shadow-[0_16px_48px_rgba(0,0,0,0.40)] transition hover:scale-105 hover:bg-zinc-200 focus:outline-none focus:ring-4 focus:ring-violet-400 motion-reduce:transform-none"
+              className="group grid size-16 place-items-center rounded-full bg-player text-action-foreground shadow-[0_12px_34px_var(--player-accent)] transition hover:scale-105 hover:bg-player-hover active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-player"
               aria-label={`Play ${title}`}
             >
-              <HugeIcon icon={PlayIcon} className="ml-1 size-9" />
+              <HugeIcon icon={PlayIcon} className="ml-1 size-7" />
             </button>
           </div>
         ) : (
           <>
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-black/90 to-transparent" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-black via-black/80 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-player-black-90 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-player-black to-player-black-80 to-transparent" />
 
-            <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-7 lg:p-10">
+            <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4 sm:p-7 lg:p-10">
               <header
                 data-player-controls
                 className={`flex items-start justify-between gap-4 transition-opacity duration-300 motion-reduce:transition-none ${
                   controlsVisible
-                    ? 'opacity-100'
+                    ? 'pointer-events-auto opacity-100'
                     : 'pointer-events-none opacity-0'
                 }`}
               >
@@ -600,53 +699,82 @@ export function ImmersiveMediaPlayer({
                   <button
                     type="button"
                     onClick={exitPlayer}
-                    className="grid size-11 shrink-0 place-items-center rounded-full bg-black/45 text-white transition hover:bg-white hover:text-zinc-900 focus:outline-none focus:ring-4 focus:ring-violet-400"
+                    className="grid size-11 shrink-0 place-items-center rounded-full bg-player-black-45 text-player-white transition hover:bg-player-white hover:text-player-black focus:outline-none focus:ring-4 focus:ring-player"
                     aria-label="Exit player"
                   >
                     <HugeIcon icon={ArrowLeft02Icon} className="size-6" />
                   </button>
                   <div className="min-w-0">
-                    <h2 className="truncate text-base font-extrabold tracking-[-0.015em] sm:text-lg">
+                    <h2 className="truncate text-base font-medium tracking-[-0.02em] sm:text-xl">
                       {title}
                     </h2>
-                    <p className="mt-1 truncate text-xs font-semibold text-zinc-300 sm:text-sm">
+                    <p className="mt-1 truncate text-xs font-semibold text-player-white-70 sm:text-sm">
                       {context}
                     </p>
                   </div>
                 </div>
+                {episodes.length > 1 ? (
+                  <div className="ml-auto flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={currentEpisodeIndex <= 0}
+                      onClick={() => selectEpisode(currentEpisodeIndex - 1)}
+                      className="grid size-11 place-items-center rounded-full bg-player-black-45 text-player-white transition hover:bg-player-white hover:text-player-black disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-player"
+                      aria-label="Previous episode"
+                    >
+                      <HugeIcon icon={ArrowLeft02Icon} className="size-5" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={
+                        currentEpisodeIndex < 0 ||
+                        currentEpisodeIndex >= episodes.length - 1
+                      }
+                      onClick={() => selectEpisode(currentEpisodeIndex + 1)}
+                      className="grid size-11 place-items-center rounded-full bg-player-black-45 text-player-white transition hover:bg-player-white hover:text-player-black disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-player"
+                      aria-label="Next episode"
+                    >
+                      <HugeIcon icon={ArrowRight02Icon} className="size-5" />
+                    </button>
+                  </div>
+                ) : (
+                  <span className="hidden rounded-full bg-player-black-50 px-3 py-1.5 text-xs font-bold text-player-white-70 sm:inline-flex">
+                    ICC playback
+                  </span>
+                )}
               </header>
 
               <div className="pointer-events-none grid place-items-center">
                 {status.kind === 'buffering' ? (
-                  <div className="pointer-events-auto rounded-2xl bg-black/75 px-6 py-5 text-center shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+                  <div className="pointer-events-auto rounded-2xl bg-player-black-75 px-6 py-5 text-center shadow-[0_20px_60px_var(--player-shadow-45)]">
                     <HugeIcon
                       icon={Loading03Icon}
-                      className="mx-auto size-10 animate-spin text-violet-400 motion-reduce:animate-none"
+                      className="mx-auto size-10 animate-spin text-player motion-reduce:animate-none"
                     />
                     <p className="mt-4 text-base font-bold">
                       Waiting for the ICC server…
                     </p>
-                    <p className="mt-1 text-xs font-semibold text-zinc-200">
+                    <p className="mt-1 text-xs font-semibold text-player-white-70">
                       Your place is preserved.
                     </p>
                   </div>
                 ) : status.kind === 'error' ? (
-                  <div className="pointer-events-auto max-w-sm rounded-2xl bg-zinc-950 px-6 py-6 text-center shadow-[0_20px_60px_rgba(0,0,0,0.50)]">
+                  <div className="pointer-events-auto max-w-sm rounded-2xl bg-player-panel px-6 py-6 text-center shadow-[0_20px_60px_var(--player-shadow-50)]">
                     <HugeIcon
                       icon={Alert02Icon}
-                      className="mx-auto size-8 text-red-300"
+                      className="mx-auto size-8 text-danger"
                     />
-                    <h2 className="mt-4 text-lg font-extrabold tracking-[-0.015em] sm:text-xl">
+                    <h2 className="mt-4 text-xl font-bold tracking-[-0.025em]">
                       Playback stopped
                     </h2>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-zinc-200">
+                    <p className="mt-2 text-sm font-semibold leading-6 text-player-white-70">
                       {status.message}
                     </p>
                     <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
                       <button
                         type="button"
                         onClick={retryPlayback}
-                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-5 text-sm font-bold text-zinc-900 transition hover:bg-zinc-200 focus:outline-none focus:ring-4 focus:ring-violet-400"
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-player-white px-5 text-sm font-bold text-player-black transition hover:bg-player-white-70 focus:outline-none focus:ring-4 focus:ring-player"
                       >
                         <HugeIcon icon={Refresh01Icon} className="size-4" />
                         Try again
@@ -654,7 +782,7 @@ export function ImmersiveMediaPlayer({
                       <button
                         type="button"
                         onClick={exitPlayer}
-                        className="min-h-11 rounded-xl border border-white/20 px-5 text-sm font-bold text-white transition hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-violet-400"
+                        className="min-h-11 rounded-xl border border-player-white/20 px-5 text-sm font-bold text-player-white transition hover:bg-player-white/10 focus:outline-none focus:ring-4 focus:ring-player"
                       >
                         Exit to file details
                       </button>
@@ -667,7 +795,7 @@ export function ImmersiveMediaPlayer({
                       rootRef.current?.focus()
                       togglePlayback()
                     }}
-                    className="pointer-events-auto grid size-20 place-items-center rounded-full bg-white text-zinc-900 shadow-[0_16px_48px_rgba(0,0,0,0.40)] transition hover:scale-105 hover:bg-zinc-200 focus:outline-none focus:ring-4 focus:ring-violet-400 motion-reduce:transform-none"
+                    className="pointer-events-auto grid size-20 place-items-center rounded-full bg-player text-action-foreground shadow-[0_16px_48px_var(--player-accent)] transition hover:bg-player-hover focus:outline-none focus:ring-4 focus:ring-player motion-reduce:transform-none"
                     aria-label={status.kind === 'ended' ? 'Play again' : 'Play'}
                   >
                     <HugeIcon icon={PlayIcon} className="ml-1 size-9" />
@@ -679,12 +807,12 @@ export function ImmersiveMediaPlayer({
                 data-player-controls
                 className={`transition-opacity duration-300 motion-reduce:transition-none ${
                   controlsVisible
-                    ? 'opacity-100'
+                    ? 'pointer-events-auto opacity-100'
                     : 'pointer-events-none opacity-0'
                 }`}
               >
                 {toast ? (
-                  <div className="mb-4 w-fit rounded-xl bg-black/75 px-4 py-2 text-sm font-bold text-white">
+                  <div className="mb-4 w-fit rounded-xl bg-player-black-75 px-4 py-2 text-sm font-bold text-player-white">
                     {toast}
                   </div>
                 ) : null}
@@ -710,14 +838,14 @@ export function ImmersiveMediaPlayer({
                     setCurrentTime(next)
                     announce(`Position ${formatTime(next)}`)
                   }}
-                  className="h-2 w-full cursor-pointer accent-violet-500 focus:outline-none focus:ring-4 focus:ring-violet-400 disabled:cursor-default disabled:opacity-60"
+                  className="h-2 w-full cursor-pointer accent-player focus:outline-none focus:ring-4 focus:ring-player disabled:cursor-default disabled:opacity-60"
                 />
 
                 <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-3">
                   <button
                     type="button"
                     onClick={togglePlayback}
-                    className="grid size-12 place-items-center rounded-full bg-white text-zinc-900 transition hover:bg-zinc-200 focus:outline-none focus:ring-4 focus:ring-violet-400"
+                    className="grid size-12 place-items-center rounded-full bg-player text-action-foreground transition hover:bg-player-hover focus:outline-none focus:ring-4 focus:ring-player"
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                   >
                     <HugeIcon
@@ -728,7 +856,7 @@ export function ImmersiveMediaPlayer({
                   <button
                     type="button"
                     onClick={() => seek(-10)}
-                    className="grid size-11 place-items-center rounded-xl bg-white/10 text-white transition hover:bg-white/20 focus:outline-none focus:ring-4 focus:ring-violet-400"
+                    className="grid size-11 place-items-center rounded-xl bg-player-white/10 text-player-white transition hover:bg-player-white/20 focus:outline-none focus:ring-4 focus:ring-player"
                     aria-label="Rewind 10 seconds"
                   >
                     <HugeIcon icon={GoBackward10SecIcon} className="size-6" />
@@ -736,7 +864,7 @@ export function ImmersiveMediaPlayer({
                   <button
                     type="button"
                     onClick={() => seek(10)}
-                    className="grid size-11 place-items-center rounded-xl bg-white/10 text-white transition hover:bg-white/20 focus:outline-none focus:ring-4 focus:ring-violet-400"
+                    className="grid size-11 place-items-center rounded-xl bg-player-white/10 text-player-white transition hover:bg-player-white/20 focus:outline-none focus:ring-4 focus:ring-player"
                     aria-label="Forward 10 seconds"
                   >
                     <HugeIcon icon={GoForward10SecIcon} className="size-6" />
@@ -744,7 +872,7 @@ export function ImmersiveMediaPlayer({
                   <button
                     type="button"
                     onClick={toggleMute}
-                    className="grid size-11 place-items-center rounded-xl text-white transition hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-violet-400"
+                    className="grid size-11 place-items-center rounded-xl text-player-white transition hover:bg-player-white/10 focus:outline-none focus:ring-4 focus:ring-player"
                     aria-label={volume === 0 ? 'Unmute' : 'Mute'}
                   >
                     <HugeIcon
@@ -765,18 +893,31 @@ export function ImmersiveMediaPlayer({
                     onChange={(event) =>
                       changeVolume(Number(event.currentTarget.value))
                     }
-                    className="hidden h-2 w-24 cursor-pointer accent-violet-500 focus:outline-none focus:ring-4 focus:ring-violet-400 sm:block"
+                    className="hidden h-2 w-24 cursor-pointer accent-player focus:outline-none focus:ring-4 focus:ring-player sm:block"
                   />
-                  <span className="ml-1 text-xs font-bold tabular-nums text-zinc-100 sm:text-sm">
+                  <span className="ml-1 text-xs font-bold tabular-nums text-player-white sm:text-sm">
                     {formatTime(currentTime)}
                     {remaining === null ? '' : ` · −${formatTime(remaining)}`}
                   </span>
 
                   <div className="ml-auto flex items-center gap-1 sm:gap-2">
+                    {episodes.length > 1 ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setEpisodeListOpen((open) => !open)}
+                          className="grid size-11 place-items-center rounded-xl text-player-white transition hover:bg-player-white/10 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-player"
+                          aria-expanded={episodeListOpen}
+                          aria-label="Open episode list"
+                        >
+                          <HugeIcon icon={KeyboardIcon} className="size-5" />
+                        </button>
+                      </>
+                    ) : null}
                     <button
                       type="button"
                       onClick={openShortcuts}
-                      className="hidden min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-bold text-zinc-200 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-4 focus:ring-violet-400 sm:inline-flex"
+                      className="hidden min-h-11 items-center gap-2 rounded-xl px-3 text-xs font-bold text-player-white-70 transition hover:bg-player-white/10 hover:text-player-white focus:outline-none focus:ring-4 focus:ring-player sm:inline-flex"
                       aria-label="Show keyboard shortcuts"
                     >
                       <HugeIcon icon={KeyboardIcon} className="size-5" />
@@ -785,7 +926,7 @@ export function ImmersiveMediaPlayer({
                     <button
                       type="button"
                       onClick={() => void toggleFullscreen()}
-                      className="grid size-11 place-items-center rounded-xl text-white transition hover:bg-white/10 focus:outline-none focus:ring-4 focus:ring-violet-400"
+                      className="grid size-11 place-items-center rounded-xl text-player-white transition hover:bg-player-white/10 focus:outline-none focus:ring-4 focus:ring-player"
                       aria-label={
                         isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'
                       }
@@ -794,7 +935,7 @@ export function ImmersiveMediaPlayer({
                     </button>
                   </div>
                 </div>
-                <p className="mt-3 hidden text-xs font-bold text-zinc-300 sm:block">
+                <p className="mt-3 hidden text-xs font-bold text-player-white-70 sm:block">
                   Space play/pause · ←/→ seek · ↑/↓ volume · M mute · F
                   fullscreen · ? shortcuts
                 </p>
@@ -804,27 +945,103 @@ export function ImmersiveMediaPlayer({
         )}
       </div>
 
-      {!immersive ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-4 py-3 sm:px-5">
-          <div className="min-w-0">
-            <strong className="block truncate text-sm font-bold text-white">
-              {context}
-            </strong>
-            {source.size ? (
-              <span className="mt-1 block text-xs font-semibold text-zinc-300">
-                {source.size}
-              </span>
-            ) : null}
-          </div>
-          <a
-            href={source.href}
-            download
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 text-sm font-bold text-white transition hover:bg-violet-500 focus:outline-none focus:ring-4 focus:ring-violet-300"
+      {immersive && episodeListOpen ? (
+        <>
+          <button
+            type="button"
+            aria-label="Dismiss episode list"
+            onClick={() => setEpisodeListOpen(false)}
+            className="absolute inset-0 z-20 bg-player-black-40"
+          />
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Episodes"
+            className="absolute inset-y-0 right-0 z-30 flex w-[min(26.25rem,92vw)] flex-col overflow-hidden border-l border-player-white/10 bg-player-panel/96 p-5 text-player-white shadow-2xl backdrop-blur-xl"
           >
-            <HugeIcon icon={Download04Icon} className="size-4" />
-            Download
-          </a>
-        </div>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="font-['Space_Grotesk_Variable'] text-2xl font-medium">
+                  Episodes
+                </h3>
+                <p className="mt-1 text-sm font-semibold text-player-white-70">
+                  {title}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEpisodeListOpen(false)}
+                aria-label="Close episode list"
+                className="grid size-11 place-items-center rounded-lg border border-player-white/10 bg-player-white/5 text-player-white-70 hover:bg-player-white/10 hover:text-player-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-player"
+              >
+                <HugeIcon icon={Cancel01Icon} className="size-5" />
+              </button>
+            </div>
+            {episodeSeasons.length > 1 ? (
+              <SelectMenu
+                ariaLabel="Select season"
+                className="mt-4 w-full"
+                options={episodeSeasons.map((season) => ({
+                  value: String(season),
+                  label: `Season ${season}`,
+                }))}
+                tone="player"
+                value={String(drawerSeason)}
+                onValueChange={(value) => setDrawerSeason(Number(value))}
+              />
+            ) : null}
+            <ol className="mt-5 flex-1 divide-y divide-player-white/10 overflow-y-auto border-y border-player-white/10">
+              {drawerEpisodes.map(({ episode, index }) => (
+                <li
+                  key={episode.href}
+                  className={
+                    index === currentEpisodeIndex
+                      ? 'bg-player-white/[0.07]'
+                      : 'hover:bg-player-white/[0.045]'
+                  }
+                >
+                  <button
+                    type="button"
+                    onClick={() => selectEpisode(index)}
+                    aria-current={
+                      index === currentEpisodeIndex ? 'true' : undefined
+                    }
+                    className="grid min-h-20 w-full min-w-0 grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-3 px-1 py-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-player sm:grid-cols-[8rem_minmax(0,1fr)] sm:px-3"
+                  >
+                    <span className="relative aspect-video overflow-hidden rounded-md bg-player-white/5">
+                      {posterHref ? (
+                        <img
+                          src={posterHref}
+                          alt=""
+                          className="size-full object-cover opacity-75"
+                        />
+                      ) : null}
+                      <span className="absolute inset-0 grid place-items-center bg-player-black-25">
+                        <span className="grid size-8 place-items-center rounded-full border border-player-white/70 bg-player-black-35">
+                          <HugeIcon icon={PlayIcon} className="size-4" />
+                        </span>
+                      </span>
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold text-player-white-90">
+                        Episode{' '}
+                        {String(episode.episodeNumber ?? index + 1).padStart(
+                          2,
+                          '0',
+                        )}
+                        {index === currentEpisodeIndex ? ' · Playing' : ''}
+                      </span>
+                      <span className="mt-1 block text-xs text-player-white-55">
+                        Season {episode.seasonNumber ?? drawerSeason}
+                        {episode.size ? ` · ${episode.size}` : ''}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </aside>
+        </>
       ) : null}
 
       <div className="sr-only" role="status" aria-live="polite">
@@ -832,23 +1049,23 @@ export function ImmersiveMediaPlayer({
       </div>
 
       {immersive && shortcutsOpen ? (
-        <div className="absolute inset-0 z-20 grid place-items-center bg-black/70 p-4">
+        <div className="absolute inset-0 z-20 grid place-items-center bg-player-black-70 p-4">
           <section
             data-player-shortcuts-dialog
             role="dialog"
             aria-modal="true"
             aria-labelledby="icc-player-shortcuts-title"
-            className="w-full max-w-lg rounded-2xl bg-zinc-950 p-5 text-white shadow-[0_28px_80px_rgba(0,0,0,0.50)] sm:p-7"
+            className="w-full max-w-lg rounded-2xl bg-player-panel p-5 text-player-white shadow-[0_28px_80px_var(--player-shadow-50)] sm:p-7"
           >
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2
                   id="icc-player-shortcuts-title"
-                  className="text-xl font-extrabold tracking-[-0.02em] sm:text-2xl"
+                  className="text-xl font-medium tracking-[-0.02em] sm:text-2xl"
                 >
                   Keyboard controls
                 </h2>
-                <p className="mt-2 text-sm font-semibold text-zinc-300">
+                <p className="mt-2 text-sm font-semibold text-player-white-70">
                   Everything needed without reaching for the mouse.
                 </p>
               </div>
@@ -856,7 +1073,7 @@ export function ImmersiveMediaPlayer({
                 ref={shortcutsCloseRef}
                 type="button"
                 onClick={closeShortcuts}
-                className="grid size-11 shrink-0 place-items-center rounded-xl text-zinc-200 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-4 focus:ring-violet-400"
+                className="grid size-11 shrink-0 place-items-center rounded-xl text-player-white-70 transition hover:bg-player-white/10 hover:text-player-white focus:outline-none focus:ring-4 focus:ring-player"
                 aria-label="Close keyboard shortcuts"
               >
                 <HugeIcon icon={Cancel01Icon} className="size-6" />
@@ -884,9 +1101,9 @@ export function ImmersiveMediaPlayer({
 function ShortcutRow({ action, keys }: { action: string; keys: string }) {
   return (
     <div className="flex items-center justify-between gap-5 py-3">
-      <dt className="text-sm font-semibold text-zinc-100">{action}</dt>
+      <dt className="text-sm font-semibold text-player-white">{action}</dt>
       <dd>
-        <kbd className="inline-flex min-w-10 justify-center rounded-lg border border-white/15 bg-white/10 px-2.5 py-1.5 text-xs font-bold text-white shadow-sm">
+        <kbd className="inline-flex min-w-10 justify-center rounded-lg border border-player-white/15 bg-player-white/10 px-2.5 py-1.5 text-xs font-bold text-player-white shadow-sm">
           {keys}
         </kbd>
       </dd>

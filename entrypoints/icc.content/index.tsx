@@ -4,14 +4,18 @@ import { flushSync } from 'react-dom'
 import { createRoot, type Root } from 'react-dom/client'
 
 import { IccSiteService } from '../../src/application/icc-site'
+import type { IccPageParseResult } from '../../src/domain/icc-page'
 import { LensPreferencesService } from '../../src/application/preferences'
-import { normalizePreferences } from '../../src/domain/preferences'
+import { normalizeEnabled } from '../../src/domain/preferences'
 import { FailureNotice } from '../../src/features/icc-lens/failure-notice'
 import { LensApp } from '../../src/features/icc-lens/lens-app'
 import { IccDomAdapter } from '../../src/infrastructure/icc-dom-adapter'
 import {
   ChromeLensPreferencesAdapter,
+  LENS_ENABLED_KEY,
   LENS_PREFERENCES_KEY,
+  LENS_THEME_KEY,
+  LENS_WATCH_HISTORY_KEY,
 } from '../../src/infrastructure/chrome-preferences'
 
 interface MountedLens {
@@ -23,7 +27,7 @@ interface MountedLens {
 
 const DIRECTION_CONTRACT = `
 THESIS: ICC Lens turns the server page into a legible catalog and playable media into a focused, keyboard-first screening room.
-OWN-WORLD: Zinc utility surfaces, one violet action color, poster-led content, a near-black playback plane, precise 12–16px corners, and dense Archivo labels.
+OWN-WORLD: Warm light/dark surfaces, amber actions, teal utilities, poster-led content, a near-black amber-accented playback plane, precise 12–16px corners, and compact Manrope labels.
 STORY: Users identify their library context, scan explicit play/download consequences, open the exact server resource, then control playback without reaching for a mouse.
 FIRST VIEWPORT: Catalog pages lead with the compact tool header and server-authored feature rail; active playback becomes an edge-to-edge dark media plane with transport anchored below.
 FORM: User-approved Design A catalog plus the immersive media player approved on 2026-08-31.
@@ -57,7 +61,7 @@ export default defineContentScript({
       }
       if (currentUi) return
 
-      const result = site.readCurrentPage()
+      const result = await readCurrentPageWhenReady(site)
       if (!result.ok) {
         const failureUi = await createShadowRootUi<Root>(ctx, {
           name: 'icc-lens-notice',
@@ -104,6 +108,8 @@ export default defineContentScript({
                   initialPage={result.page}
                   logoUrl={chrome.runtime.getURL('logo.svg')}
                   service={site}
+                  preferences={preferences}
+                  pageHref={window.location.href}
                   onRestoreOriginal={removeCurrentUi}
                 />,
               )
@@ -141,11 +147,24 @@ export default defineContentScript({
       changes: Record<string, chrome.storage.StorageChange>,
       areaName: string,
     ) => {
-      if (areaName !== 'local' || !changes[LENS_PREFERENCES_KEY]) return
-      const enabled = normalizePreferences(
-        changes[LENS_PREFERENCES_KEY]?.newValue,
-      ).enabled
-      void mountForPreference(enabled)
+      if (areaName !== 'local') return
+      const enabledChange = changes[LENS_ENABLED_KEY]
+      const legacyChange = changes[LENS_PREFERENCES_KEY]
+      if (enabledChange || legacyChange) {
+        const enabled = enabledChange
+          ? normalizeEnabled(enabledChange.newValue)
+          : normalizeEnabled(
+              legacyChange?.newValue &&
+                typeof legacyChange.newValue === 'object' &&
+                'enabled' in legacyChange.newValue
+                ? legacyChange.newValue.enabled
+                : undefined,
+            )
+        void mountForPreference(enabled)
+      }
+      if (changes[LENS_THEME_KEY] || changes[LENS_WATCH_HISTORY_KEY]) {
+        window.dispatchEvent(new Event('icc-lens:preferences-changed'))
+      }
     }
     chrome.storage.onChanged.addListener(storageListener)
     ctx.onInvalidated(() => {
@@ -160,6 +179,50 @@ export default defineContentScript({
     }
   },
 })
+
+const DETAIL_READY_TIMEOUT_MS = 5_000
+
+async function readCurrentPageWhenReady(
+  site: IccSiteService,
+): Promise<IccPageParseResult> {
+  const initial = site.readCurrentPage()
+  if (initial.ok || !shouldWaitForDetailContent(initial)) return initial
+
+  return new Promise((resolve) => {
+    let settled = false
+    const finish = (result: IccPageParseResult) => {
+      if (settled) return
+      settled = true
+      observer.disconnect()
+      window.clearTimeout(timeout)
+      resolve(result)
+    }
+    const readAgain = () => {
+      const result = site.readCurrentPage()
+      if (result.ok) finish(result)
+    }
+    const observer = new MutationObserver(readAgain)
+    const timeout = window.setTimeout(
+      () => finish(site.readCurrentPage()),
+      DETAIL_READY_TIMEOUT_MS,
+    )
+
+    observer.observe(document.body, {
+      characterData: true,
+      childList: true,
+      subtree: true,
+    })
+    readAgain()
+  })
+}
+
+function shouldWaitForDetailContent(result: IccPageParseResult): boolean {
+  if (result.ok || result.reason !== 'The ICC detail title is missing.') {
+    return false
+  }
+  const pathname = window.location.pathname.toLowerCase()
+  return pathname.endsWith('/download.php') || pathname.endsWith('/player.php')
+}
 
 function isolateRootTypography(): () => void {
   const root = document.documentElement

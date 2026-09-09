@@ -1,21 +1,35 @@
 import { TriangleAlertIcon } from '@hugeicons/core-free-icons'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import type { IccSiteService } from '../../application/icc-site'
+import type { LensPreferencesService } from '../../application/preferences'
 import { HugeIcon } from '../../components/ui/huge-icon'
+import {
+  categoryScopeForGroupName,
+  type CategoryScope,
+} from '../../domain/category-scope'
 import type {
   CatalogPage,
   IccPage,
+  MediaSource,
   SearchSuggestion,
 } from '../../domain/icc-page'
+import {
+  DEFAULT_PREFERENCES,
+  normalizePageIdentity,
+  type LensTheme,
+  type WatchHistoryEntry,
+} from '../../domain/preferences'
 import { CatalogView } from './catalog-view'
 import { DetailView } from './detail-view'
-import { LensHeader } from './lens-header'
+import { LensHeader, type PrimaryPage } from './lens-header'
 
 interface LensAppProps {
   initialPage: IccPage
   logoUrl: string
   service: IccSiteService
+  preferences: LensPreferencesService
+  pageHref: string
   onRestoreOriginal(): void
 }
 
@@ -26,6 +40,8 @@ export function LensApp({
   initialPage,
   logoUrl,
   service,
+  preferences,
+  pageHref,
   onRestoreOriginal,
 }: LensAppProps) {
   const [page, setPage] = useState<IccPage>(initialPage)
@@ -35,13 +51,94 @@ export function LensApp({
   const [dismissedSuggestionQuery, setDismissedSuggestionQuery] = useState<
     string | null
   >(null)
-  const [browseOpen, setBrowseOpen] = useState(false)
+  const [browseScope, setBrowseScope] = useState<CategoryScope | null>(null)
   const [nextPageNumber, setNextPageNumber] = useState(2)
   const [loadingMore, setLoadingMore] = useState(false)
   const [loadMoreError, setLoadMoreError] = useState<string | null>(null)
+  const [theme, setTheme] = useState<LensTheme>(DEFAULT_PREFERENCES.theme)
+  const [watchHistory, setWatchHistory] = useState<WatchHistoryEntry[]>([])
+  const pendingProgress = useRef<WatchHistoryEntry | null>(null)
+  const progressTimer = useRef<number | null>(null)
+
+  useEffect(() => {
+    let current = true
+    const refresh = () => {
+      void Promise.all([
+        preferences.loadTheme(),
+        preferences.loadWatchHistory(),
+      ])
+        .then(([storedTheme, storedHistory]) => {
+          if (!current) return
+          setTheme(storedTheme)
+          setWatchHistory(storedHistory)
+        })
+        .catch(() => undefined)
+    }
+    refresh()
+    window.addEventListener('icc-lens:preferences-changed', refresh)
+    return () => {
+      current = false
+      window.removeEventListener('icc-lens:preferences-changed', refresh)
+    }
+  }, [preferences])
+
+  useEffect(
+    () => () => {
+      if (progressTimer.current !== null)
+        window.clearTimeout(progressTimer.current)
+      if (pendingProgress.current)
+        void preferences.upsertWatchHistory(pendingProgress.current)
+    },
+    [preferences],
+  )
 
   const groups = page.groups
   const homeHref = page.homeHref
+  const activePrimaryPage = resolveActivePrimaryPage(page, pageHref)
+  const pageIdentity = normalizePageIdentity(pageHref)
+  const resumeEntry =
+    page.kind === 'detail' && pageIdentity
+      ? watchHistory.find((entry) => entry.pageIdentity === pageIdentity)
+      : undefined
+
+  function toggleTheme() {
+    const next: LensTheme = theme === 'light' ? 'dark' : 'light'
+    setTheme(next)
+    void preferences.saveTheme(next).catch(() => setTheme(theme))
+  }
+
+  function recordProgress({
+    source,
+    seconds,
+    duration,
+  }: {
+    source: MediaSource
+    seconds: number
+    duration: number
+  }) {
+    if (page.kind !== 'detail' || !pageIdentity) return
+    pendingProgress.current = {
+      pageIdentity,
+      title: page.title,
+      context: source.label,
+      ...(source.seasonNumber ? { season: source.seasonNumber } : {}),
+      ...(source.episodeNumber ? { episode: source.episodeNumber } : {}),
+      currentTime: seconds,
+      duration,
+      updatedAt: Date.now(),
+    }
+    if (progressTimer.current !== null) return
+    progressTimer.current = window.setTimeout(() => {
+      const pending = pendingProgress.current
+      pendingProgress.current = null
+      progressTimer.current = null
+      if (!pending) return
+      void preferences
+        .upsertWatchHistory(pending)
+        .then(setWatchHistory)
+        .catch(() => undefined)
+    }, 2_000)
+  }
 
   useEffect(() => {
     const normalizedQuery = query.trim()
@@ -70,11 +167,6 @@ export function LensApp({
       window.clearTimeout(timeout)
     }
   }, [dismissedSuggestionQuery, query, searchState.kind, service])
-
-  const itemCount = useMemo(
-    () => (page.kind === 'catalog' ? page.items.length : page.sources.length),
-    [page],
-  )
 
   async function runSearch() {
     setDismissedSuggestionQuery(query.trim())
@@ -124,16 +216,23 @@ export function LensApp({
   }
 
   return (
-    <div className="min-h-[100dvh] min-w-[320px] bg-zinc-50 font-sans text-zinc-900 antialiased">
+    <div
+      data-theme={theme}
+      className="min-h-[100dvh] min-w-[320px] bg-canvas font-sans text-content antialiased"
+    >
       <LensHeader
         groups={groups}
         homeHref={homeHref}
+        activePage={activePrimaryPage}
         logoUrl={logoUrl}
         query={query}
         searchBusy={searchState.kind === 'searching'}
         suggestions={suggestions}
-        browseOpen={browseOpen}
-        onBrowseChange={setBrowseOpen}
+        browseOpen={browseScope !== null}
+        browseScope={browseScope ?? 'global'}
+        theme={theme}
+        onThemeToggle={toggleTheme}
+        onBrowseChange={(open) => setBrowseScope(open ? 'global' : null)}
         onQueryChange={(value) => {
           setQuery(value)
           setDismissedSuggestionQuery(null)
@@ -145,27 +244,27 @@ export function LensApp({
       />
 
       {searchState.kind === 'error' ? (
-        <div className="border-b border-red-200 bg-red-50">
+        <div className="border-b border-danger/25 bg-danger/10">
           <div
             role="alert"
-            className="mx-auto flex max-w-[1512px] flex-col gap-4 px-4 py-4 text-red-950 sm:flex-row sm:items-center sm:px-6 lg:px-8"
+            className="icc-container flex flex-col gap-4 py-4 text-content sm:flex-row sm:items-center"
           >
             <HugeIcon
               icon={TriangleAlertIcon}
-              className="size-5 shrink-0 text-red-900"
+              className="size-5 shrink-0 text-danger"
             />
             <div className="min-w-0 flex-1">
               <strong className="block text-sm font-bold">
                 Search couldn’t be completed
               </strong>
-              <p className="mt-1 text-sm font-medium leading-6 text-red-800 [overflow-wrap:anywhere]">
+              <p className="mt-1 text-sm font-medium leading-6 text-content-secondary [overflow-wrap:anywhere]">
                 {searchState.message} Your current catalog is still available.
               </p>
             </div>
             <button
               type="button"
               onClick={() => service.submitNativeSearch(query)}
-              className="min-h-11 shrink-0 rounded-xl bg-red-900 px-4 text-sm font-bold text-white transition hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-200"
+              className="min-h-11 shrink-0 rounded-xl bg-danger px-4 text-sm font-semibold text-danger-foreground transition hover:brightness-110 focus:outline-none focus:ring-4 focus:ring-danger/25"
             >
               Try original search
             </button>
@@ -178,25 +277,64 @@ export function LensApp({
           page={page}
           loadingMore={loadingMore}
           loadMoreError={loadMoreError}
-          onBrowse={() => setBrowseOpen(true)}
+          onBrowse={() =>
+            setBrowseScope(
+              activePrimaryPage === 'movie' ||
+                activePrimaryPage === 'series' ||
+                activePrimaryPage === 'file'
+                ? activePrimaryPage
+                : 'global',
+            )
+          }
           onLoadMore={() => void loadMore()}
+          watchHistory={watchHistory}
+          onClearWatchHistory={() => {
+            void preferences
+              .clearWatchHistory()
+              .then(() => setWatchHistory([]))
+              .catch(() => undefined)
+          }}
         />
       ) : (
-        <DetailView page={page} />
+        <DetailView
+          page={page}
+          resumeEntry={resumeEntry}
+          onPlaybackProgress={recordProgress}
+        />
       )}
-
-      <footer className="border-t border-zinc-200 bg-white">
-        <div className="mx-auto flex max-w-[1512px] flex-col gap-2 px-4 py-6 text-xs font-semibold text-zinc-600 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <span>ICC Lens · Design A — Catalog</span>
-          <span>
-            {itemCount}{' '}
-            {page.kind === 'catalog' ? 'items shown' : 'files found'} · No
-            telemetry · Original server links preserved
-          </span>
-        </div>
-      </footer>
     </div>
   )
+}
+
+function resolveActivePrimaryPage(
+  page: IccPage,
+  pageHref: string,
+): PrimaryPage {
+  if (page.kind === 'detail') {
+    return page.contentKind === 'movie'
+      ? 'movie'
+      : page.contentKind === 'series'
+        ? 'series'
+        : 'file'
+  }
+  if (page.view === 'latest') return 'home'
+  if (page.view === 'search') return null
+
+  let categoryId: string | null = null
+  try {
+    categoryId = new URL(pageHref).searchParams.get('category')
+  } catch {
+    return null
+  }
+  if (categoryId === '0') return 'home'
+  const group = page.groups.find((candidate) =>
+    candidate.categories.some((category) => category.id === categoryId),
+  )
+  if (group) return categoryScopeForGroupName(group.name)
+  if (categoryId === '9') return 'movie'
+  if (categoryId === '38') return 'series'
+  if (categoryId === '68') return 'file'
+  return null
 }
 
 export function appendCatalogItems(
