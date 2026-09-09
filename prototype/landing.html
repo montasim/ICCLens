@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="ICC Lens turns the ICC local media server into a clear, private Chrome catalog."
+    />
+    <title>ICC Lens — A clearer local screening room</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body
+    class="min-h-screen bg-[#f7f3ea] font-sans text-[#181713] antialiased selection:bg-[#fbbf24] selection:text-[#181713]"
+  >
+    <a
+      href="#main"
+      class="fixed left-4 top-4 z-50 -translate-y-24 rounded-xl bg-[#181713] px-4 py-3 text-sm font-medium text-white transition focus:translate-y-0 focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/40"
+    >
+      Skip to content
+    </a>
+
+    <header
+      class="sticky top-0 z-40 border-b border-[#ded4c1] bg-[#fffaf0]/95 backdrop-blur"
+    >
+      <div
+        class="mx-auto flex min-h-20 max-w-[1656px] items-center justify-between gap-6 px-4 sm:px-6 lg:px-8"
+      >
+        <a
+          href="#top"
+          class="flex items-center gap-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/35"
+        >
+          <img src="../public/logo.svg" alt="" class="h-11 w-11" />
+          <span>
+            <strong class="block text-sm font-semibold">ICC Lens</strong>
+            <span
+              class="block font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#665f53]"
+              >Local screening room</span
+            >
+          </span>
+        </a>
+
+        <nav
+          class="hidden items-center gap-7 text-sm font-medium md:flex"
+          aria-label="Main navigation"
+        >
+          <a class="underline-offset-4 hover:underline" href="#experience"
+            >Experience</a
+          >
+          <a class="underline-offset-4 hover:underline" href="#privacy"
+            >Privacy</a
+          >
+          <a class="underline-offset-4 hover:underline" href="#install"
+            >Install</a
+          >
+        </nav>
+
+        <a
+          href="https://github.com/montasim/ICCLens/releases/latest"
+          class="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#fbbf24] px-5 text-sm font-medium text-white shadow-[0_8px_24px_rgba(133,77,14,0.18)] transition hover:-translate-y-0.5 hover:bg-[#f59e0b] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/35"
+        >
+          Download latest
+        </a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section
+        id="top"
+        class="mx-auto grid max-w-[1656px] gap-12 px-4 pb-16 pt-14 sm:px-6 sm:pt-20 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:px-8 lg:pb-24 lg:pt-24"
+      >
+        <div class="max-w-[680px]">
+          <h1
+            class="max-w-[13ch] font-medium tracking-[-0.035em] text-5xl leading-[0.98] sm:text-6xl lg:text-7xl"
+          >
+            Your local media library, finally easy to see.
+          </h1>
+          <p
+            class="mt-7 max-w-[60ch] text-base font-medium leading-7 text-[#5e584e] sm:text-lg"
+          >
+            ICC Lens replaces the legacy ICC pages with a focused Chrome
+            experience for browsing, searching, playing, and downloading—without
+            sending your activity anywhere else.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a
+              href="https://github.com/montasim/ICCLens/releases/latest"
+              class="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#fbbf24] px-6 text-sm font-medium text-white shadow-[0_10px_26px_rgba(133,77,14,0.2)] transition hover:-translate-y-0.5 hover:bg-[#f59e0b] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/35"
+            >
+              Download latest
+            </a>
+            <a
+              href="#install"
+              class="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#cfc3af] bg-[#fffaf0] px-6 text-sm font-medium transition hover:-translate-y-0.5 hover:border-[#a99c86] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/35"
+            >
+              See how to install
+            </a>
+          </div>
+        </div>
+
+        <figure class="relative lg:pl-4">
+          <div
+            class="absolute -inset-4 -z-10 rounded-[28px] bg-[#fbbf24] opacity-20 sm:-inset-7"
+          ></div>
+          <div
+            class="overflow-hidden rounded-2xl bg-[#12110f] shadow-[0_28px_80px_rgba(42,34,22,0.24)]"
+          >
+            <div
+              class="flex h-11 items-center gap-2 border-b border-white/10 px-4"
+              aria-hidden="true"
+            >
+              <span class="h-2.5 w-2.5 rounded-full bg-white/25"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-white/25"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-[#fbbf24]"></span>
+              <span class="ml-3 h-5 flex-1 rounded-md bg-white/10"></span>
+            </div>
+            <img
+              id="hero-preview"
+              src="../.impeccable/review/series-detail-desktop.png"
+              alt="ICC Lens series page with a video area, details, season selection, and episode cards"
+              class="aspect-[16/10] w-full object-cover object-top"
+              width="1280"
+              height="800"
+            />
+          </div>
+          <figcaption
+            class="mt-5 flex flex-wrap items-center justify-between gap-3"
+          >
+            <span
+              id="preview-caption"
+              class="text-sm font-medium text-[#5e584e]"
+              >Series details keep playback and downloads together.</span
+            >
+            <span
+              class="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-[#854d0e]"
+              >Real extension interface</span
+            >
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="border-y border-[#ded4c1] bg-[#fffaf0]">
+        <div
+          class="mx-auto grid max-w-[1656px] divide-y divide-[#ded4c1] px-4 sm:px-6 md:grid-cols-3 md:divide-x md:divide-y-0 lg:px-8"
+        >
+          <p class="py-7 md:pr-8">
+            <strong class="block text-sm font-semibold"
+              >One private server</strong
+            >
+            <span class="mt-1 block text-sm font-medium text-[#665f53]"
+              >Runs only on the configured ICC address.</span
+            >
+          </p>
+          <p class="py-7 md:px-8">
+            <strong class="block text-sm font-semibold">No telemetry</strong>
+            <span class="mt-1 block text-sm font-medium text-[#665f53]"
+              >Searches and page content stay in your browser.</span
+            >
+          </p>
+          <p class="py-7 md:pl-8">
+            <strong class="block text-sm font-semibold"
+              >Original page always reachable</strong
+            >
+            <span class="mt-1 block text-sm font-medium text-[#665f53]"
+              >Return to the server UI whenever you need it.</span
+            >
+          </p>
+        </div>
+      </section>
+
+      <section
+        id="experience"
+        class="mx-auto max-w-[1656px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+      >
+        <div class="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+          <div>
+            <h2
+              class="max-w-[13ch] text-3xl font-medium tracking-[-0.03em] sm:text-4xl"
+            >
+              One interface from search to screening.
+            </h2>
+            <p
+              class="mt-5 max-w-[55ch] text-base font-medium leading-7 text-[#665f53]"
+            >
+              Browse a poster-first catalog, inspect a title, choose an episode,
+              and play it without falling back into disconnected legacy screens.
+            </p>
+            <div
+              class="mt-8 grid gap-2"
+              role="tablist"
+              aria-label="Preview ICC Lens surfaces"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected="false"
+                data-preview="catalog"
+                class="preview-tab min-h-14 rounded-xl border border-[#ded4c1] bg-[#fffaf0] px-5 text-left text-sm font-medium transition hover:border-[#b7aa95] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/35"
+              >
+                Browse the catalog
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected="true"
+                data-preview="series"
+                class="preview-tab min-h-14 rounded-xl border border-[#fbbf24] bg-[#fbbf24] px-5 text-left text-sm font-medium text-white shadow-[0_8px_22px_rgba(133,77,14,0.16)] transition focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/35"
+              >
+                Choose a series episode
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected="false"
+                data-preview="player"
+                class="preview-tab min-h-14 rounded-xl border border-[#ded4c1] bg-[#fffaf0] px-5 text-left text-sm font-medium transition hover:border-[#b7aa95] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/35"
+              >
+                Enter the player
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="self-start overflow-hidden rounded-2xl bg-[#12110f] shadow-[0_24px_64px_rgba(42,34,22,0.22)]"
+          >
+            <img
+              id="experience-preview"
+              src="../.impeccable/review/series-detail-desktop.png"
+              alt="ICC Lens series page with a video area, details, season selection, and episode cards"
+              class="aspect-[16/10] w-full object-cover object-top"
+              width="1280"
+              height="800"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section id="privacy" class="bg-[#12110f] text-white">
+        <div
+          class="mx-auto grid max-w-[1656px] gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28"
+        >
+          <div>
+            <h2
+              class="max-w-[13ch] text-3xl font-medium tracking-[-0.03em] sm:text-4xl"
+            >
+              A better view, not another media service.
+            </h2>
+            <p
+              class="mt-5 max-w-[62ch] text-base font-medium leading-7 text-[#d6d0c6]"
+            >
+              ICC Lens reads the page already open on your private network and
+              renders a clearer interface over it. It does not host the catalog,
+              create accounts, upload media, or broaden access to the server.
+            </p>
+          </div>
+          <dl
+            class="grid gap-px overflow-hidden rounded-2xl bg-white/15 sm:grid-cols-3"
+          >
+            <div class="bg-[#1d1b17] p-6">
+              <dt
+                class="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-[#fbbf24]"
+              >
+                Accounts
+              </dt>
+              <dd class="mt-7 text-2xl font-medium">None</dd>
+            </div>
+            <div class="bg-[#1d1b17] p-6">
+              <dt
+                class="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-[#fbbf24]"
+              >
+                Analytics
+              </dt>
+              <dd class="mt-7 text-2xl font-medium">None</dd>
+            </div>
+            <div class="bg-[#1d1b17] p-6">
+              <dt
+                class="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-[#fbbf24]"
+              >
+                Remote code
+              </dt>
+              <dd class="mt-7 text-2xl font-medium">None</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section
+        id="install"
+        class="mx-auto max-w-[1656px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28"
+      >
+        <div
+          class="grid overflow-hidden rounded-2xl bg-[#fffaf0] shadow-[0_24px_64px_rgba(42,34,22,0.14)] lg:grid-cols-[1.05fr_0.95fr]"
+        >
+          <div class="p-7 sm:p-10 lg:p-14">
+            <h2
+              class="max-w-[15ch] text-3xl font-medium tracking-[-0.03em] sm:text-4xl"
+            >
+              Download the latest ICC Lens release.
+            </h2>
+            <p
+              class="mt-5 max-w-[60ch] text-base font-medium leading-7 text-[#665f53]"
+            >
+              GitHub Releases provides the current Chrome ZIP and checksum. The
+              landing page always points to the latest release instead of
+              displaying a version number.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a
+                href="https://github.com/montasim/ICCLens/releases/latest"
+                class="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#fbbf24] px-6 text-sm font-medium text-white shadow-[0_10px_26px_rgba(133,77,14,0.2)] transition hover:-translate-y-0.5 hover:bg-[#f59e0b] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/35"
+              >
+                Download latest
+              </a>
+              <a
+                href="https://github.com/montasim/ICCLens/releases"
+                class="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#cfc3af] px-6 text-sm font-medium transition hover:border-[#a99c86] focus:outline-none focus:ring-4 focus:ring-[#fbbf24]/35"
+              >
+                View release notes
+              </a>
+            </div>
+          </div>
+          <ol
+            class="grid divide-y divide-[#ded4c1] border-t border-[#ded4c1] bg-[#f1eadc] lg:border-l lg:border-t-0"
+          >
+            <li class="grid grid-cols-[auto_1fr] gap-4 p-7 sm:p-8">
+              <span class="font-mono text-xs font-semibold text-[#854d0e]"
+                >01</span
+              >
+              <p>
+                <strong class="block text-sm font-semibold"
+                  >Download and unzip</strong
+                ><span class="mt-1 block text-sm font-medium text-[#665f53]"
+                  >Get the latest Chrome package from GitHub.</span
+                >
+              </p>
+            </li>
+            <li class="grid grid-cols-[auto_1fr] gap-4 p-7 sm:p-8">
+              <span class="font-mono text-xs font-semibold text-[#854d0e]"
+                >02</span
+              >
+              <p>
+                <strong class="block text-sm font-semibold"
+                  >Open Chrome extensions</strong
+                ><span class="mt-1 block text-sm font-medium text-[#665f53]"
+                  >Enable Developer mode in chrome://extensions.</span
+                >
+              </p>
+            </li>
+            <li class="grid grid-cols-[auto_1fr] gap-4 p-7 sm:p-8">
+              <span class="font-mono text-xs font-semibold text-[#854d0e]"
+                >03</span
+              >
+              <p>
+                <strong class="block text-sm font-semibold"
+                  >Load unpacked</strong
+                ><span class="mt-1 block text-sm font-medium text-[#665f53]"
+                  >Choose the unzipped extension folder, then visit ICC.</span
+                >
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+
+    <footer class="border-t border-[#ded4c1] bg-[#fffaf0]">
+      <div
+        class="mx-auto flex max-w-[1656px] flex-col gap-5 px-4 py-8 text-sm font-medium text-[#665f53] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
+      >
+        <p>ICC Lens · A clearer interface for one local media server.</p>
+        <nav class="flex flex-wrap gap-5" aria-label="Footer navigation">
+          <a
+            class="underline-offset-4 hover:underline"
+            href="https://github.com/montasim/ICCLens"
+            >GitHub</a
+          >
+          <a
+            class="underline-offset-4 hover:underline"
+            href="../privacy-policy.md"
+            >Privacy</a
+          >
+          <a
+            class="underline-offset-4 hover:underline"
+            href="https://github.com/montasim/ICCLens/issues"
+            >Support</a
+          >
+        </nav>
+      </div>
+    </footer>
+
+    <script>
+      const previews = {
+        catalog: {
+          src: '../.impeccable/review/desktop.png',
+          alt: 'ICC Lens catalog with search, featured media, sorting, and a responsive poster grid',
+          caption:
+            'Poster-first browsing makes the local catalog easier to scan.',
+        },
+        series: {
+          src: '../.impeccable/review/series-detail-desktop.png',
+          alt: 'ICC Lens series page with a video area, details, season selection, and episode cards',
+          caption: 'Series details keep playback and downloads together.',
+        },
+        player: {
+          src: '../.impeccable/review/player-desktop.png',
+          alt: 'ICC Lens immersive player with playback, seeking, volume, and shortcut controls',
+          caption:
+            'Playback opens in a focused screening room with complete controls.',
+        },
+      }
+
+      const tabs = [...document.querySelectorAll('.preview-tab')]
+      const experiencePreview = document.querySelector('#experience-preview')
+      const heroPreview = document.querySelector('#hero-preview')
+      const caption = document.querySelector('#preview-caption')
+
+      const selectPreview = (name) => {
+        const preview = previews[name]
+        if (!preview) return
+
+        experiencePreview.src = preview.src
+        experiencePreview.alt = preview.alt
+        heroPreview.src = preview.src
+        heroPreview.alt = preview.alt
+        caption.textContent = preview.caption
+
+        tabs.forEach((tab) => {
+          const selected = tab.dataset.preview === name
+          tab.setAttribute('aria-selected', String(selected))
+          tab.classList.toggle('border-[#fbbf24]', selected)
+          tab.classList.toggle('bg-[#fbbf24]', selected)
+          tab.classList.toggle('text-white', selected)
+          tab.classList.toggle(
+            'shadow-[0_8px_22px_rgba(133,77,14,0.16)]',
+            selected,
+          )
+          tab.classList.toggle('border-[#ded4c1]', !selected)
+          tab.classList.toggle('bg-[#fffaf0]', !selected)
+        })
+      }
+
+      tabs.forEach((tab) =>
+        tab.addEventListener('click', () => selectPreview(tab.dataset.preview)),
+      )
+    </script>
+  </body>
+</html>

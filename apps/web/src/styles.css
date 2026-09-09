@@ -1,0 +1,40 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Manrope Variable', sans-serif;
+  --font-display: 'Space Grotesk Variable', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+@layer base {
+  * {
+    border-color: #ded4c1;
+  }
+
+  html {
+    background: #f7f3ea;
+    color: #181713;
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    background: #f7f3ea;
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: #fbbf24;
+    color: #181713;
+  }
+
+  :focus-visible {
+    outline: none;
+  }
+
+  * {
+    scrollbar-color: #c48a20 #efe7d8;
+    scrollbar-width: thin;
+  }
+}
