@@ -19,5 +19,6 @@ jobs:
           cache: true
           runtime: node@24
           require-lockfile: true
+      - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm check

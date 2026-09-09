@@ -18,6 +18,7 @@ jobs:
           cache: true
           runtime: node@24
           require-lockfile: true
+      - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - name: Verify tag matches extension version
         run: test "$GITHUB_REF_NAME" = "v$(node -p \"JSON.parse(require('fs').readFileSync('apps/extension/package.json', 'utf8')).version\")"
