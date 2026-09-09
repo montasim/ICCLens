@@ -23,10 +23,13 @@
 - [ ] The ZIP manifest requests only `storage` and the exact `http://10.16.100.244/*` content-script match.
 - [ ] The checksum matches the exact ZIP selected for manual install or upload.
 - [ ] No source map, secret, debug flag, test fixture, or unintended remote call ships.
+- [ ] `pnpm build:web` succeeds and `netlify.toml` publishes `apps/web/dist/client`.
+- [ ] The website's **Download latest** actions resolve to the repository's latest GitHub Release and no release version is hard-coded in its interface.
+- [ ] A `v*` tag matching `apps/extension/package.json` publishes the verified `.output` ZIP and checksum.
 
 ## Human handoff
 
-- [ ] README and store instructions match current commands and surfaces.
+- [ ] README, website, and store instructions match current commands and surfaces.
 - [ ] The verified ZIP was installed manually in a clean Chrome profile.
 - [ ] Known limitations and deferred work have an owner.
 - [ ] Store upload, signing, and publication have explicit authorization.

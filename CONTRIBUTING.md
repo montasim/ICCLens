@@ -1,6 +1,6 @@
 # Contributing
 
-ICC Lens is a permission-minimal, private-network Chrome extension. Changes should preserve the exact-host boundary, original-page recovery path, and approved Design A experience.
+ICC Lens is a monorepo for a permission-minimal private-network Chrome extension and its public website. Changes should preserve the exact-host boundary, original-page recovery path, approved Design A extension experience, and the website's no-private-data boundary.
 
 ## Before changing code
 
@@ -12,10 +12,12 @@ ICC Lens is a permission-minimal, private-network Chrome extension. Changes shou
 
 1. Create a focused branch from `main`.
 2. Install with `pnpm install --frozen-lockfile` using Node.js 24 and pnpm 11.
-3. Keep the DOM adapter, manifest, permission ledger, privacy copy, product config, generated assets, tests, and documentation aligned.
+3. Keep the extension DOM adapter, manifest, permission ledger, privacy copy, product config, generated assets, website copy, tests, and documentation aligned.
 4. Run `pnpm check` before opening a pull request.
 5. Run `pnpm check:release` before handing off a distributable ZIP.
 
 Pull requests should explain the user-visible outcome, intended boundaries, verification commands, and any effect on the observed legacy markup, permissions, stored data, network behavior, dependencies, accessibility, or packaging. Include wide/narrow catalog screenshots and a popup screenshot when a visible surface changes.
+
+Use `pnpm dev` for the extension and `pnpm dev:web` for the landing page. Extension implementation lives in `apps/extension`; website implementation lives in `apps/web`. Shared root scripts own release verification and must keep extension artifacts in `.output`.
 
 Report vulnerabilities through [SECURITY.md](SECURITY.md), not an issue.

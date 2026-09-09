@@ -4,11 +4,12 @@
 
 ## Platform
 
-web
+- Chrome 120+ Manifest V3 extension
+- Public product website
 
 ## Stack
 
-Chrome 120+ Manifest V3 extension built with WXT, React, TypeScript, and Tailwind CSS 4 from the approved `chrome-extension-starter` template.
+pnpm monorepo with a WXT/React extension and a TanStack Start/React website. Both applications use TypeScript, Tailwind CSS 4, Shadcn-style primitives, and Huge Icons.
 
 ## Users
 
@@ -31,6 +32,9 @@ ICC Lens does not operate a second catalog or scrape data into a remote service.
 - The server and its internal media hosts remain authoritative for content, authentication, availability, and download behavior.
 
 ## Capabilities and Constraints
+
+- The public website explains the product, presents checked-in extension screenshots, and points to the latest GitHub Release without displaying a hard-coded version number.
+- The website is independently buildable and deployable to Netlify; it does not connect to, proxy, or receive data from the private ICC server.
 
 - Automatically runs only on the exact ICC HTTP host.
 - Covers home/latest, category, search, movie, series, episode, archive, file-information, multi-file download, direct-download, loading, empty, and failure states.
@@ -57,6 +61,8 @@ ICC Lens does not operate a second catalog or scrape data into a remote service.
 ## Evidence on Hand
 
 - `prototype/index.html`: approved functional prototype with Design A selected.
+- `prototype/landing.html`: approved functional landing-page prototype.
+- `apps/web/public/screenshots/`: sanitized screenshots of the current extension interface used by the landing page.
 - `prototype/icc-ftp-ux-audit.md`: live-site page, category, state, and issue inventory captured on 2026-08-31.
 - Sanitized DOM fixtures and adapter tests cover the server templates without packaging user sessions or media files.
 
@@ -77,4 +83,5 @@ The primary journey must remain operable by keyboard, expose visible focus, use 
 - `pnpm verify:prototype:approved`
 - `pnpm check`
 - `pnpm check:release` after public support and repository metadata are confirmed
+- `pnpm build:web` and the root `netlify.toml` deployment contract
 - Manual unpacked-extension smoke test against the live ICC server

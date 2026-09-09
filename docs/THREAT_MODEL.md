@@ -7,10 +7,13 @@
 - A malformed or changed legacy page cannot replace the user's recovery path with a blank surface.
 - Page-controlled values cannot become executable markup or arbitrary URL schemes in the extension UI.
 - The packaged extension requests no capability beyond its single-origin content script and local preference storage.
+- The public website cannot read or proxy the private ICC server and contains no analytics, account, or data-submission path.
 
 ## Trust boundaries
 
 The ICC server, its HTML, its command endpoints, and every media URL it returns are untrusted inputs. Chrome extension storage is trusted to persist local preferences (`enabled`, `theme`) and bounded `watchHistory`. React, WXT's isolated shadow root, and the extension package are trusted code boundaries. Destination media servers are outside ICC Lens and receive requests only after normal page navigation or explicit user action.
+
+The public website is a separate TanStack Start application. Its bundled screenshots are sanitized repository assets; it sends visitors only to public GitHub project, release, privacy, and support URLs. It has no route, permission, credential, or runtime bridge into the extension or private network.
 
 ## Threats and mitigations
 

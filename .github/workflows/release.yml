@@ -1,14 +1,14 @@
-name: Package release candidate
+name: Release ICC Lens
 
 on:
   push:
     tags: ['v*']
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  package:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -19,10 +19,16 @@ jobs:
           runtime: node@24
           require-lockfile: true
       - run: pnpm exec playwright install --with-deps chromium
+      - name: Verify tag matches extension version
+        run: test "$GITHUB_REF_NAME" = "v$(node -p \"JSON.parse(require('fs').readFileSync('apps/extension/package.json', 'utf8')).version\")"
       - run: pnpm check:release
-      - uses: actions/upload-artifact@v7
-        with:
-          name: chrome-extension-package
-          path: |
-            .output/*.zip
-            .output/*.sha256
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME"
+          .output/*.zip
+          .output/*.sha256
+          --verify-tag
+          --title "ICC Lens $GITHUB_REF_NAME"
+          --generate-notes

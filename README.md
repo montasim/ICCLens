@@ -1,144 +1,146 @@
 # ICC Lens
 
-> A clearer, faster Chrome interface for the ICC local media server.
+> A clearer Chrome interface for one local media server, with a public product website and a privacy-first permission boundary.
 
 [![CI](https://github.com/montasim/ICCLens/actions/workflows/ci.yml/badge.svg)](https://github.com/montasim/ICCLens/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Chrome 120+](https://img.shields.io/badge/Chrome-120%2B-4285F4?logo=googlechrome&logoColor=white)](https://www.google.com/chrome/)
 
-ICC Lens replaces the legacy catalog at `http://10.16.100.244/` with a responsive browsing experience for categories, search results, media details, series episodes, archives, and downloads. It is deliberately limited to that private-network origin, sends no analytics or page data elsewhere, and always provides a route back to the original interface.
+ICC Lens replaces the legacy pages at `http://10.16.100.244/` with a responsive interface for browsing, searching, playback, series episodes, archives, and downloads. It runs only for people who already have access to that private server, sends no analytics or page data elsewhere, and keeps the original interface one action away.
 
-![ICC Lens catalog on desktop](.impeccable/review/desktop.png)
+[Download the latest extension](https://github.com/montasim/ICCLens/releases/latest) · [Read the privacy policy](privacy-policy.md) · [Get support](SUPPORT.md)
 
-## Why ICC Lens?
+![ICC Lens series details with playback, metadata, season selection, and episode cards](apps/web/public/screenshots/series-detail.png)
 
-The ICC server exposes useful local media through an interface that is difficult to browse on modern desktop and mobile screens. ICC Lens improves that interface without replacing the server, changing its endpoints, or broadening access beyond the one configured host.
+## What it improves
 
-- Browse all 45 observed categories across Movies, Games, Software, TV Series, and Others.
-- Search and sort catalog results with responsive, keyboard-accessible controls.
-- View movie details and play supported media in an immersive player.
-- Open TV series episodes through explicit play and download actions.
-- Keep native search, server suggestions, featured content, and pagination available.
-- Recover from unsupported or changed markup by returning to the original page.
-- Disable or re-enable the enhanced interface from the extension popup.
+- Poster-first home, category, and search grids with consistent sorting and navigation.
+- Context-aware category changes: movies stay with movies, series with TV shows, and files with Games, Software, E-Books, and other non-video groups.
+- Movie and series details with clear metadata, playback, season selection, episode downloads, and related titles.
+- Modern file pages for single downloads, multi-file collections, and information-only content.
+- An immersive player with keyboard controls, click-anywhere play/pause, resume history, and deliberate error states.
+- A popup switch and an always-reachable route back to the original ICC page.
 
-The observed page contract and approved experience are documented in [prototype coverage](prototype/coverage.md), [PRODUCT.md](PRODUCT.md), and [DESIGN.md](DESIGN.md).
+The extension does not host media, bypass network access, create accounts, proxy content, or broaden access to the server.
 
-## Install and use
+## Install the latest release
 
-ICC Lens is currently a development-stage extension and is not published in the Chrome Web Store. Install a local build as an unpacked extension.
+1. Open the [latest GitHub Release](https://github.com/montasim/ICCLens/releases/latest).
+2. Download the Chrome ZIP and unzip it.
+3. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
+4. Select the unzipped extension folder.
+5. Visit `http://10.16.100.244/` while connected to the ICC network.
+
+The matching `.sha256` file can be used to verify the downloaded ZIP. ICC Lens is not currently distributed through the Chrome Web Store.
+
+## Repository layout
+
+```text
+ICCLens/
+├── apps/
+│   ├── extension/   WXT + React Chrome extension
+│   └── web/         TanStack Start product website
+├── docs/            architecture, quality, release, and security contracts
+├── prototype/       approved functional UI prototypes
+├── scripts/         workspace and artifact verification
+├── .output/         generated unpacked extension, ZIP, and checksum
+└── netlify.toml     website deployment contract
+```
+
+The extension keeps its domain/application/infrastructure direction inside `apps/extension`. The web app is independent: it contains public product copy and sanitized screenshots, and has no route into the extension or private ICC server.
+
+## Develop locally
 
 ### Requirements
 
-- Chrome 120 or later
-- Access to `http://10.16.100.244/` on the ICC private network
 - Node.js 24
-- pnpm 11 (the repository pins `pnpm@11.7.0`)
-
-### Build the extension
+- pnpm 11
+- Chrome 120 or later for unpacked-extension testing
 
 ```sh
 git clone https://github.com/montasim/ICCLens.git
 cd ICCLens
 pnpm install --frozen-lockfile
-pnpm build
 ```
 
-### Load it in Chrome
-
-1. Open `chrome://extensions`.
-2. Enable **Developer mode**.
-3. Select **Load unpacked**.
-4. Choose the generated `.output` directory.
-5. Visit `http://10.16.100.244/` while connected to the ICC network.
-
-ICC Lens activates automatically on the supported origin. Use its toolbar popup to turn the enhanced interface off or on for all ICC pages in the current Chrome profile. The **View original page** action remains available when the enhanced page cannot safely represent the server response.
-
-## Local development
-
-Install dependencies and start WXT's Chrome development workflow:
+Run the extension development workflow:
 
 ```sh
-pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The extension has no environment variables, external services, accounts, or secrets to configure. Its public identity and release placeholders live in [`product.config.json`](product.config.json); derived icons and theme assets are generated by repository scripts.
+Run the landing page at `http://localhost:3000`:
 
-## How it works
-
-```text
-legacy ICC DOM/fetch ─> ICC DOM adapter ─> normalized page model
-                                               │
-                                               v
-popup ─> local enabled preference ─> shadow-root React interface
+```sh
+pnpm dev:web
 ```
 
-- `src/domain/` contains pure catalog, page, and preference rules.
-- `src/application/` defines use cases and narrow browser-independent ports.
-- `src/infrastructure/` adapts ICC markup and Chrome storage.
-- `entrypoints/` owns Chrome/WXT lifecycle and presentation wiring.
-- `src/features/icc-lens/` contains the user-facing catalog and detail experience.
+There are no environment variables, external services, accounts, or secrets to configure.
 
-The background service worker is treated as ephemeral; the enabled preference is durable in Chrome storage. Runtime behavior and failure boundaries are described in [the architecture](docs/ARCHITECTURE.md) and [threat model](docs/THREAT_MODEL.md).
+## Build outputs
 
-## Privacy and permission boundary
+```sh
+pnpm build:extension
+pnpm build:web
+```
 
-The packaged extension requests only Chrome's `storage` permission and a static content script for `http://10.16.100.244/*`. It does not request cookies, tabs, scripting, downloads, history, broad host access, or `<all_urls>`.
+- The unpacked Chrome extension is written directly to the repository-root `.output/` directory.
+- The TanStack Start client is written to `apps/web/dist/client`; its Netlify server function is generated alongside the web build.
+- `pnpm build` builds both applications.
 
-The extension:
+## Deploy the website to Netlify
 
-- stores only whether the enhanced interface is enabled;
-- makes no analytics, telemetry, remote-font, or third-party network requests;
-- reads ICC page markup only to present the interface on that same page;
-- keeps native server links and download behavior under the server's control.
+The root [`netlify.toml`](netlify.toml) is ready for a repository-based Netlify deployment. It runs `pnpm build:web`, publishes `apps/web/dist/client`, and uses the Netlify TanStack Start Vite integration for request handling. The site deliberately says **Download latest** and links to GitHub Releases rather than embedding a release version.
 
-See the [permission ledger](permission-ledger.md) and [privacy policy](privacy-policy.md) for the complete trigger, data-access, denial, and failure behavior.
+This repository prepares the deployment contract but does not create or modify a remote Netlify site.
 
-## Quality and release
+## Release the extension
 
-| Command                          | Purpose                                                                        |
-| -------------------------------- | ------------------------------------------------------------------------------ |
-| `pnpm check:fast`                | Check formatting, toolchain, lint, types, and unit/UI tests                    |
-| `pnpm test:e2e`                  | Exercise the unpacked extension in Chromium                                    |
-| `pnpm check`                     | Run fast checks, build validation, and the browser journey                     |
-| `pnpm check:release`             | Verify release configuration and produce an inspected ZIP and SHA-256 checksum |
-| `pnpm verify:prototype:approved` | Confirm the approved HTML/Tailwind prototype gate                              |
+The [release workflow](.github/workflows/release.yml) runs for tags matching `v*`. It checks that the tag matches `apps/extension/package.json`, runs the full release suite, and publishes the verified Chrome ZIP plus its SHA-256 checksum to GitHub Releases.
 
-GitHub Actions runs the full `pnpm check` workflow on pull requests and pushes to `main`. Version tags matching `v*` run the release-candidate workflow and retain the verified ZIP and checksum as workflow artifacts. Chrome Web Store submission, signing, and publication remain manual.
+```sh
+pnpm check:release
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
 
-## Status and limitations
+Tagging and pushing are human-authorized release actions. Local builds never publish automatically.
 
-ICC Lens is at version `0.1.0` with a development release status.
+## Privacy and permissions
 
-- Chrome is the only configured browser target.
-- The exact private IP is intentional; ICC Lens does nothing on other origins.
-- The project depends on the legacy server's rendered HTML and endpoints. When they change unexpectedly, the extension preserves or restores the original UI instead of guessing.
-- The ICC server, linked media, authentication, availability, content rights, and download safety are outside this extension's control.
-- A different host, broader access, or new network service requires an explicit permission-ledger, privacy, threat-model, manifest, and test review.
-- No public live demo can reproduce the private-network server. The checked-in screenshots and functional prototype provide reviewable UI evidence without exposing private content.
+The packaged extension requests only:
+
+- Chrome `storage`, for enabled state, theme, and bounded local watch history.
+- A static content script on the exact `http://10.16.100.244/*` origin.
+
+It requests no wildcard hosts, tabs, scripting, cookies, downloads, history, clipboard, unlimited storage, telemetry, remote code, or third-party API access. If parsing or rendering fails, ICC Lens leaves or restores the original page.
+
+See the [permission ledger](permission-ledger.md), [privacy policy](privacy-policy.md), and [threat model](docs/THREAT_MODEL.md) for the complete boundary.
+
+## Quality checks
+
+| Command              | What it proves                                                                   |
+| -------------------- | -------------------------------------------------------------------------------- |
+| `pnpm check:fast`    | Formatting, approved prototype, toolchain, lint, types, and unit/UI behavior     |
+| `pnpm test:e2e`      | Real unpacked-extension behavior in Chromium                                     |
+| `pnpm check`         | Fast checks, extension artifact audit, browser journey, and web production build |
+| `pnpm check:release` | Exact release ZIP contents and checksum, in addition to all checks above         |
+
+GitHub Actions runs the project checks on pull requests and `main`. The [quality ladder](docs/QUALITY.md) and [release checklist](docs/RELEASE_CHECKLIST.md) define completion beyond code existing.
 
 ## Documentation
 
 - [Product contract](PRODUCT.md)
-- [Design system and states](DESIGN.md)
+- [Design system](DESIGN.md)
 - [Architecture](docs/ARCHITECTURE.md)
+- [Prototype coverage](prototype/coverage.md)
 - [Quality levels](docs/QUALITY.md)
-- [Prototype workflow](docs/PROTOTYPING.md)
 - [Release checklist](docs/RELEASE_CHECKLIST.md)
-- [Threat model](docs/THREAT_MODEL.md)
 - [Surface contract](docs/SURFACE_CONTRACT.md)
+- [Contributing](CONTRIBUTING.md)
 
-## Support, security, and contributing
+## Support and security
 
-Use the [support guide](SUPPORT.md) for usage questions and reproducible defects. Report vulnerabilities privately through the process in [SECURITY.md](SECURITY.md); do not post credentials, browsing data, private media addresses, or unpatched vulnerability details in a public issue.
+Use [SUPPORT.md](SUPPORT.md) for usage questions and reproducible defects. Report vulnerabilities through [SECURITY.md](SECURITY.md), not a public issue; never include credentials, browsing history, private media URLs, or copied server data.
 
-Contributions are welcome when they preserve the narrow host and permission boundary. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the required workflow and verification commands.
-
-## Author
-
-Built and maintained by [Montasim](https://github.com/montasim).
-
-## License
-
-ICC Lens is open-source software licensed under the [MIT License](LICENSE).
+Built and maintained by [Montasim](https://github.com/montasim). Licensed under the [MIT License](LICENSE).

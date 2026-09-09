@@ -35,8 +35,20 @@ Proof: store smoke test plus `docs/SCORECARD.md`
 ## Always required
 
 - Reproducible Node 24/pnpm 11 install and Chrome MV3 build
+- Independently reproducible extension and website builds from their workspace packages
+- Root `.output` extension artifact and `apps/web/dist/client` Netlify publish artifact
 - Packaged behavior matches approved prototype coverage or records an approved deviation
 - Pure domain and application tests plus real-extension browser proof for the main slice
 - Keyboard use, focus visibility, high-zoom/narrow-panel behavior, and no serious/critical axe violations
 - No unexplained permission, host access, remote call, data category, secret, or debug artifact
 - Explicit owner and follow-up date for every intentional exception
+
+## Workspace proof
+
+| Command                | Evidence                                                 |
+| ---------------------- | -------------------------------------------------------- |
+| `pnpm dev`             | Runs the WXT Chrome development workflow.                |
+| `pnpm dev:web`         | Runs the TanStack Start landing page locally.            |
+| `pnpm build:extension` | Produces the unpacked extension at root `.output/`.      |
+| `pnpm build:web`       | Produces the Netlify-ready web output.                   |
+| `pnpm check:release`   | Verifies both apps and the exact extension ZIP/checksum. |

@@ -1,6 +1,16 @@
 # ICC Lens architecture
 
-ICC Lens is a Manifest V3 content-script extension. The server remains authoritative for navigation and files; the extension parses each rendered page into a small domain model, then renders the approved Design A interface in an isolated shadow root.
+ICC Lens is a pnpm monorepo with two independently built applications. The Manifest V3 extension enhances the private ICC server; the TanStack Start website is a public, static-content product surface that links visitors to the latest GitHub Release.
+
+```text
+apps/
+├── extension/   WXT extension, Chrome entrypoints, domain and UI
+└── web/         TanStack Start landing page
+
+.output/         unpacked extension build, release ZIP and checksum
+```
+
+The applications share product identity and design intent, but no runtime state. The website cannot access the ICC server and the extension never depends on the website.
 
 ## Dependency direction
 
@@ -17,15 +27,14 @@ ICC content entrypoint ──> application services ──> domain types/rules
                          original ICC document/fetch
 ```
 
-- `src/domain/` owns normalized page, category, item, media, and preference types plus pure classification rules. It imports no browser or UI module.
-- `src/application/` owns the narrow site and preference ports used by the interface.
-- `src/infrastructure/icc-dom-adapter.ts` is the anti-corruption layer around the legacy HTML, original featured carousel, search endpoint, suggestions, and pagination.
-- `src/infrastructure/chrome-preferences.ts` owns Chrome storage serialization.
-- `src/features/icc-lens/` renders catalog and detail views from normalized models, including informational and multi-download file pages; it does not query the legacy DOM.
-- `src/domain/category-scope.ts` classifies server-provided groups into movie, series, and file scopes so page-level browsing stays contextual while the header retains the unfiltered inventory.
-- `entrypoints/icc.content/` owns the WXT lifecycle, isolated shadow-root mounting, safe fallback, and restoration of the original document.
-- `entrypoints/popup/` exposes the one persisted preference and a direct link to the server.
-- `entrypoints/background.ts` is intentionally empty; correctness does not depend on service-worker state.
+- `apps/extension/src/domain/` owns normalized page, category, item, media, and preference types plus pure classification rules. It imports no browser or UI module.
+- `apps/extension/src/application/` owns the narrow site and preference ports used by the interface.
+- `apps/extension/src/infrastructure/icc-dom-adapter.ts` is the anti-corruption layer around legacy HTML and endpoints.
+- `apps/extension/src/infrastructure/chrome-preferences.ts` owns Chrome storage serialization.
+- `apps/extension/src/features/icc-lens/` renders catalog and detail views from normalized models; it does not query the legacy DOM.
+- `apps/extension/entrypoints/` owns WXT lifecycle, isolated shadow-root mounting, safe fallback, popup UI, and original-page restoration.
+- `apps/web/src/routes/` owns the public TanStack Start routes. It uses only bundled assets and public GitHub links.
+- Root scripts own cross-workspace verification and the `.output` release contract.
 
 Dependencies point inward. Domain-to-browser imports, application-to-adapter imports, direct Chrome calls from reusable UI, and legacy selector logic outside the adapter fail review.
 
@@ -49,12 +58,20 @@ This order is deliberate: parsing and rendering are additive until success is kn
 5. Store only the enabled boolean, theme enum, and bounded watch-history contract. Watch history keeps same-origin page identity, title, optional season/episode context, position, duration, and update time; it excludes external media URLs, posters, searches, page contents, and credentials.
 6. Model layout drift, malformed endpoints, storage failure, and service-worker restart as recoverable states.
 
+## Build and deployment boundaries
+
+- `pnpm build:extension` writes the unpacked Chrome artifact directly to the repository-root `.output/` directory.
+- `pnpm zip` adds the release ZIP to `.output/`; the package verifier writes and validates its SHA-256 checksum there.
+- `pnpm build:web` produces the TanStack Start client at `apps/web/dist/client` and its Netlify server function.
+- Root `netlify.toml` is the website deployment authority. It builds only the web workspace and publishes the client directory; the official Netlify TanStack Start Vite integration provides request handling.
+- Version tags matching `v*` run the release workflow, verify that the tag matches the extension package version, and publish the verified ZIP and checksum to GitHub Releases.
+
 See [THREAT_MODEL.md](THREAT_MODEL.md) and the root [permission ledger](../permission-ledger.md) for the exact trust and access boundaries.
 
 ## Completion proof
 
 - `pnpm check:fast` proves formatting, lint, types, parser classification, application behavior, and UI states.
-- `pnpm check` adds the MV3 build audit and an unpacked-Chromium catalog, accessibility, responsive, and fallback journey.
+- `pnpm check` adds the MV3 build audit, an unpacked-Chromium catalog journey, and the production website build.
 - `pnpm check:release` inspects the actual ZIP contents and writes its SHA-256 checksum.
 
 An architecture change is complete only when the packaged manifest, documentation, tests, and UI behavior continue to describe the same product.

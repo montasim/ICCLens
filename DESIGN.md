@@ -108,6 +108,14 @@ Density serves scanning. Headlines are confident without overpowering the catalo
 - Clear differences between details, play, episode selection, and download.
 - Responsive stacking that keeps search and recovery actions available at narrow widths.
 
+## Public Website
+
+The landing page translates the same warm local-cinema direction into a quieter editorial product story. It uses the existing yellow action color, cream surfaces, black content text, bundled type, Shadcn-style controls, and Huge Icons. Real sanitized extension screenshots are the primary proof; decorative product mockups do not replace them.
+
+Its hierarchy is deliberately short: product promise and latest-release action, real interface preview, privacy boundary, installation steps, and public project links. Every release action says **Download latest** and resolves to GitHub Releases. The interface never displays a release number, invents testimonials or metrics, embeds remote fonts, or implies that the website can reach the private ICC server.
+
+Desktop uses an asymmetric text-and-product hero; narrow screens stack copy before the screenshot and retain a compact latest-download action in the header. The approved reference is `prototype/landing.html`, recorded in `prototype/coverage.md`.
+
 ## Brand Mark
 
 The ICC Lens mark is the prototype's compact amber ICC tile with a teal diagonal edge. Its simple lettering and high-contrast silhouette stay recognizable at the 16px Chrome toolbar size, while the amber and teal connect the browser icon, popup, and injected catalog header to one identity.
