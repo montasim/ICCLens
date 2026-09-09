@@ -33,11 +33,14 @@ ICC Lens does not operate a second catalog or scrape data into a remote service.
 ## Capabilities and Constraints
 
 - Automatically runs only on the exact ICC HTTP host.
-- Covers home/latest, category, search, movie, series, episode, archive, direct-download, loading, empty, and failure states.
-- Series details can export the server-provided episode URLs as a local UTF-8 text file, one absolute URL per line, while retaining each episode's individual download action.
+- Covers home/latest, category, search, movie, series, episode, archive, file-information, multi-file download, direct-download, loading, empty, and failure states.
+- File pages preserve the server-provided title, artwork, descriptive copy, ordered download links, and sizes. Information-only file pages remain in the owned interface and clearly state when ICC supplied no download.
+- “Change category” stays within the current content type: Movies exposes only movie categories, Series only TV-series categories, and File combines Games, Software, Others, and future non-media groups. Every contextual chooser keeps a consistent three-column desktop layout, while Navbar Browse remains the complete server category inventory.
+- Search results use the same responsive poster-card grid as category and home catalogs, preserving familiar artwork, title, age, popularity, and action behavior instead of switching to a separate row layout.
+- The consolidated series Details panel can export the server-provided episode URLs as a local UTF-8 text file, one absolute URL per line, while retaining each episode's individual download action.
 - Uses the existing page DOM and same-origin server actions; it does not add accounts, bypass authentication, upload files, or modify server data.
 - Preserves original URLs and session parameters when the server supplies them and repairs empty player-page session parameters from the current URL when possible.
-- Stores whether ICC Lens is enabled, the active theme preference, and local watch-history (with fixed retention limits and clear-history controls). No page content or search query is persisted.
+- Stores whether ICC Lens is enabled, the active theme preference, and up to 20 recent local watch-history records for 90 days. Watch records contain a same-origin page identity, title, optional season/episode context, playback position, duration, and update time; completed records are removed and users can clear history. External media URLs, posters, page contents, and search queries are not persisted.
 - No analytics, telemetry, advertising, third-party API, remote executable code, or background synchronization.
 - Does not launch, control, or exchange data with external download managers; users import the generated text file themselves.
 - If parsing or mounting fails, the original page remains visible.
@@ -46,8 +49,9 @@ ICC Lens does not operate a second catalog or scrape data into a remote service.
 ## Brand Commitments
 
 - Product name: ICC Lens.
-- Prototype Design A — Catalog is the binding visual and interaction reference.
-- The approved direction uses neutral zinc surfaces, a violet accent, poster-led catalog browsing, explicit metadata, and 12–16px control corners.
+- The approved single Catalog prototype is the binding visual and interaction reference.
+- The approved ISPCine-derived direction uses warm cream and navy/near-black surfaces, one signal amber action color across catalog and player controls, teal support, poster-led browsing, explicit metadata, and 12–16px control corners.
+- Manrope is the body face, Space Grotesk is the display face, and IBM Plex Mono is reserved for compact measurements and labels; every production font is bundled.
 - Production interface components use Tailwind utilities and Huge Icons; no second icon family is introduced.
 
 ## Evidence on Hand

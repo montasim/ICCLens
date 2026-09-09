@@ -21,7 +21,8 @@ ICC content entrypoint ──> application services ──> domain types/rules
 - `src/application/` owns the narrow site and preference ports used by the interface.
 - `src/infrastructure/icc-dom-adapter.ts` is the anti-corruption layer around the legacy HTML, original featured carousel, search endpoint, suggestions, and pagination.
 - `src/infrastructure/chrome-preferences.ts` owns Chrome storage serialization.
-- `src/features/icc-lens/` renders catalog and detail views from normalized models; it does not query the legacy DOM.
+- `src/features/icc-lens/` renders catalog and detail views from normalized models, including informational and multi-download file pages; it does not query the legacy DOM.
+- `src/domain/category-scope.ts` classifies server-provided groups into movie, series, and file scopes so page-level browsing stays contextual while the header retains the unfiltered inventory.
 - `entrypoints/icc.content/` owns the WXT lifecycle, isolated shadow-root mounting, safe fallback, and restoration of the original document.
 - `entrypoints/popup/` exposes the one persisted preference and a direct link to the server.
 - `entrypoints/background.ts` is intentionally empty; correctness does not depend on service-worker state.
@@ -45,7 +46,7 @@ This order is deliberate: parsing and rendering are additive until success is kn
 2. Treat all page-derived strings and URLs as untrusted. React owns text escaping; the adapter accepts only HTTP(S) navigation URLs and never injects page HTML.
 3. Classify playable media by a known extension allowlist. Do not trust the server's MIME declaration—the archive page currently labels a `.rar` file as video.
 4. Package every executable dependency. Remote code, `eval`, dynamically downloaded scripts, and page-world injection are outside the contract.
-5. Store only the enabled boolean. Page contents, searches, media links, and credentials never enter extension storage.
+5. Store only the enabled boolean, theme enum, and bounded watch-history contract. Watch history keeps same-origin page identity, title, optional season/episode context, position, duration, and update time; it excludes external media URLs, posters, searches, page contents, and credentials.
 6. Model layout drift, malformed endpoints, storage failure, and service-worker restart as recoverable states.
 
 See [THREAT_MODEL.md](THREAT_MODEL.md) and the root [permission ledger](../permission-ledger.md) for the exact trust and access boundaries.

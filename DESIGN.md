@@ -1,48 +1,50 @@
 ---
 name: ICC Lens
-description: A precise violet-on-zinc catalog for the ICC local media server.
+description: A warm amber and teal media catalog for the ICC local server, with light and dark themes.
 colors:
-  violet-action: '#7c3aed'
-  violet-surface: '#6f4cc3'
-  violet-wash: '#ddd6fe'
-  ink: '#18181b'
-  working-ink: '#27272a'
-  muted-ink: '#52525b'
-  paper: '#f4f4f5'
-  surface: '#ffffff'
+  amber-brand: '#fbbf24'
+  amber-action: '#fbbf24'
+  amber-action-hover: '#f59e0b'
+  amber-on-surface: '#854d0e'
+  action-foreground: '#ffffff'
+  teal-support: '#55d6be'
+  light-canvas: '#f7f3ea'
+  light-surface: '#fffaf0'
+  dark-canvas: '#12110f'
+  dark-surface: '#1d1b17'
   danger: '#991b1b'
 typography:
   display:
-    fontFamily: 'Archivo Variable, Arial Narrow, sans-serif'
+    fontFamily: 'Space Grotesk Variable, sans-serif'
     fontSize: 'clamp(1.875rem, 4vw, 2.25rem)'
-    fontWeight: 700
+    fontWeight: 500
     lineHeight: 1.08
     letterSpacing: '-0.025em'
   popup-display:
-    fontFamily: 'Archivo Variable, Arial Narrow, sans-serif'
+    fontFamily: 'Space Grotesk Variable, sans-serif'
     fontSize: '2.25rem'
-    fontWeight: 700
+    fontWeight: 500
     lineHeight: 1.02
     letterSpacing: '-0.025em'
   headline:
-    fontFamily: 'Archivo Variable, Arial Narrow, sans-serif'
+    fontFamily: 'Space Grotesk Variable, sans-serif'
     fontSize: 'clamp(1.25rem, 3vw, 1.5rem)'
-    fontWeight: 700
+    fontWeight: 500
     lineHeight: 1.2
     letterSpacing: '-0.02em'
   title:
-    fontFamily: 'Archivo Variable, Arial Narrow, sans-serif'
+    fontFamily: 'Manrope Variable, sans-serif'
     fontSize: '0.9375rem'
     fontWeight: 600
     lineHeight: 1.3
     letterSpacing: '-0.01em'
   body:
-    fontFamily: 'Archivo Variable, Arial Narrow, sans-serif'
+    fontFamily: 'Manrope Variable, sans-serif'
     fontSize: '0.875rem'
     fontWeight: 500
     lineHeight: 1.5
   label:
-    fontFamily: 'Archivo Variable, Arial Narrow, sans-serif'
+    fontFamily: 'IBM Plex Mono, monospace'
     fontSize: '0.75rem'
     fontWeight: 600
     lineHeight: 1.25
@@ -61,14 +63,14 @@ spacing:
 components:
   button-primary:
     backgroundColor: '{colors.working-ink}'
-    textColor: '{colors.surface}'
+    textColor: '{colors.action-foreground}'
     typography: '{typography.body}'
     rounded: '{rounded.compact}'
     padding: '12px 16px'
     height: '48px'
   button-accent:
-    backgroundColor: '{colors.violet-action}'
-    textColor: '{colors.surface}'
+    backgroundColor: '{colors.amber-action}'
+    textColor: '{colors.action-foreground}'
     typography: '{typography.body}'
     rounded: '{rounded.compact}'
     padding: '12px 20px'
@@ -89,31 +91,34 @@ components:
 
 ## Overview
 
-**Creative North Star: "The Violet Screening Room"**
+**Creative North Star: "The Warm Local Cinema"**
 
-ICC Lens treats a local file server like a compact editorial catalog: quiet zinc architecture frames poster-led content, while softened working ink and a single violet action voice make the next consequence obvious. It feels deliberate and media-aware without pretending to be a commercial streaming service.
+ICC Lens treats a local file server like a compact editorial catalog. Warm neutral surfaces frame poster-led content, amber marks primary actions across both the catalog and cinema player, and teal supports utility actions. The same semantic hierarchy is available in user-selected light and dark themes.
 
 Density serves scanning. Headlines are confident without overpowering the catalog, metadata stays compact and legible, and the layout spends its largest areas on actual titles, posters, players, and episode rows. The approved Design A hierarchy is the authority; decoration never outranks the catalog or the path back to the original server.
 
 **Key Characteristics:**
 
-- Poster-first catalog scanning on a cool neutral canvas.
-- One violet action voice paired with softened ink utility controls.
+- Poster-first catalog scanning on a warm neutral canvas.
+- A 1656px shared container, compact page spacing, and compact metadata.
+- Local Continue Watching with explicit clearing and no remote media data.
+- A 70/30 detail layout: player at left, download information at right, followed by details, episodes, and related titles.
+- One amber action voice paired with softened ink utility controls.
 - A role-based Archivo hierarchy with restrained headline scale and legible operational labels.
 - Clear differences between details, play, episode selection, and download.
 - Responsive stacking that keeps search and recovery actions available at narrow widths.
 
 ## Brand Mark
 
-The ICC Lens mark shows three poster cards held between two violet focus brackets: the existing catalog brought into a clearer view. It deliberately avoids camera, aperture, eye, magnifier, and play-button imagery because the product improves an interface rather than capturing or hosting media. Its flat geometry and high-contrast silhouette must remain recognizable at the 16px Chrome toolbar size.
+The ICC Lens mark is the prototype's compact amber ICC tile with a teal diagonal edge. Its simple lettering and high-contrast silhouette stay recognizable at the 16px Chrome toolbar size, while the amber and teal connect the browser icon, popup, and injected catalog header to one identity.
 
 ## Colors
 
-The palette is neutral and editorial, using violet as a scarce interactive signal rather than an ambient wash.
+The palette is neutral and editorial, using amber as a scarce interactive signal rather than an ambient wash.
 
 ### Primary
 
-- **Lens Violet:** The action and identity color for primary navigation, focused emphasis, active controls, and small badges.
+- **Signal Amber:** The bright yellow-gold action and identity color for primary navigation, focused emphasis, active controls, and player transport state. Text and icons on solid amber controls use white, following the approved visual treatment without darkening the yellow surface.
 
 ### Neutral
 
@@ -122,10 +127,10 @@ The palette is neutral and editorial, using violet as a scarce interactive signa
 - **Muted Ink:** Supporting metadata and explanatory copy that still clears AA contrast.
 - **Cool Paper:** The light zinc page canvas that separates the extension from the original server without feeling like a floating dashboard.
 - **Field White:** Headers, feature utilities, dialogs, metadata cells, and controls that need a clean working surface.
-- **Violet Wash:** Focus rings, icon wells, selected context, and other low-intensity accent states.
-- **Recovery Red:** Search and pagination failure copy only; it never competes with violet during normal use.
+- **Amber Wash:** Focus rings, icon wells, selected context, and other low-intensity accent states.
+- **Recovery Red:** Search and pagination failure copy only; it never competes with amber during normal use.
 
-**The Violet Is a Verb Rule.** Violet marks an action, selection, focus, or product identity. Do not turn entire routine sections into violet decoration.
+**The Amber Is a Verb Rule.** Amber marks an action, selection, focus, or product identity. Do not turn entire routine sections into amber decoration.
 
 **The Contrast Is Evidence Rule.** Metadata must use a neutral dark enough for AA contrast on both paper and white surfaces; subtlety never depends on washed-out gray.
 
@@ -136,7 +141,7 @@ The palette is neutral and editorial, using violet as a scarce interactive signa
 - **Zinc 600:** Supporting copy, metadata, timestamps, counts, and secondary context on light surfaces.
 - **White / Zinc 300:** Primary and secondary player text respectively on near-black media surfaces.
 
-The light interface stops at Working Ink (`#27272a`) for strong text and routine dark controls. Catalog Ink (`#18181b`) is reserved for media planes and fallback notices, while pure black belongs only to video playback. Large violet backgrounds and primary controls use the quieter Violet Surface (`#6f4cc3`); the brighter Lens Violet remains available for compact identity and focus accents.
+The light interface uses browser black for strong text and routine labels. Near-black is reserved for media planes and fallback notices, while pure black belongs to video playback. Primary controls, focus indicators, progress tracks, volume tracks, and play controls all use Signal Amber (`#fbbf24`) through the shared action token.
 
 ## Typography
 
@@ -148,14 +153,14 @@ The light interface stops at Working Ink (`#27272a`) for strong text and routine
 
 ### Hierarchy
 
-- **Page / Detail Headline** (700, fluid 30–36px, 1.08, -0.025em): Detail-page titles.
+- **Page / Detail Headline** (500, fluid 24–30px, 1.08, -0.025em): Catalog and detail-page titles.
 - **Popup Display** (700, 36px, 1.02, -0.025em): The fixed 360px popup statement, balanced for a compact surface.
-- **Section Title** (700, fluid 20–24px, approximately 1.2, -0.02em): Catalog sections, episode groups, and supporting page headings.
+- **Section Title** (500, fluid 20–24px, approximately 1.2, -0.02em): Catalog sections, episode groups, and supporting page headings.
 - **Card Title** (600, 15px, 1.3, -0.01em): Catalog card titles at readable desktop widths.
 - **Body** (500, 14px, 1.5): Dense explanations, descriptions, and trust copy; reading prose may grow responsively to 16px and is capped at 65ch.
 - **Label / Metadata** (600, 12px minimum, 1.25): Metadata, counts, timestamps, release status, compact markers, and control support.
 
-Weight communicates role consistently: 700 for major statements, 600 for actions, card titles, metadata, and supporting labels, and 500 for prose. The size and spacing steps preserve hierarchy without relying on heavy weight. Do not use 800 or 900 as a broad default.
+Weight communicates role consistently: 500 for page and section titles, selects, and heading-row actions; 600 for card titles, metadata, and supporting labels; and 500 for prose. Size and spacing preserve hierarchy without relying on heavy weight. Do not use 800 or 900 as a broad default.
 
 **The Headline Earns the Width Rule.** Large type belongs to the current title or promise, never to generic section chrome.
 
@@ -163,7 +168,7 @@ Weight communicates role consistently: 700 for major statements, 600 for actions
 
 ## Layout
 
-The catalog uses a centered container capped at 1512px with 16px narrow padding, 24px medium padding, and 32px wide padding. Every owned page begins with a compact breadcrumb on that same container, followed by the page's primary content. The server-authored feature rail shows one, two, three, four, or five cards as usable width grows; the catalog grows from two columns to three, four, five, and finally six. Category and search pages begin directly with the compact catalog heading and actions; they do not repeat that context in a separate banner. Detail pages reserve their widest area for the player or primary file action, then use a poster-and-metadata split. Starting a playable movie or episode replaces that framed detail surface with an edge-to-edge near-black screening room.
+The catalog uses a centered container capped at 1656px with 16px narrow padding, 24px medium padding, and 32px wide padding. Every owned page begins with a compact breadcrumb on that same container, followed by the page's primary content. The server-authored feature rail shows one, two, three, four, or five cards as usable width grows; home, category, and search results share the same poster-card grid, growing from two columns to three, four, five, and finally six. Category and search pages begin directly with the compact catalog heading and actions; they do not repeat that context in a separate banner or switch to a row-only result treatment. Detail pages reserve their widest area for the player or primary file action, then use a poster-and-metadata split. Starting a playable movie or episode replaces that framed detail surface with an edge-to-edge near-black screening room.
 
 At narrow widths, the brand and essential browse/recovery actions remain on the first header row and search receives a full second row. The featured rail exposes one nearly full-width card with touch scrolling, catalog cards remain a two-column scan, and episode actions wrap without hiding play or download. Player transport controls reflow without collisions, preserve every essential action, and keep interactive targets at least 44px. The popup is a deliberate 360px fixed surface; the injected page supports 320px and wider.
 
@@ -193,13 +198,13 @@ Controls use compact 8–12px corners; product surfaces, artwork, dialogs, media
 ### Buttons
 
 - **Shape:** Compact curved controls (12px) with a minimum 44px target in every player and narrow-screen context.
-- **Primary:** Working Ink for universal actions and violet for catalog-specific emphasis; both use semibold 14px labels.
-- **Hover / Focus:** A small upward response where elevation is useful, a color shift toward violet, and a visible four-pixel violet-wash ring.
+- **Primary:** Working Ink for universal actions and amber for catalog-specific emphasis; both use semibold 14px labels.
+- **Hover / Focus:** A small upward response where elevation is useful, a color shift toward amber, and a visible four-pixel amber-wash ring.
 - **Secondary / Ghost:** White bordered controls for alternate actions; quiet text buttons are reserved for Home and original-site recovery.
 
 ### Chips
 
-- **Style:** Short pill labels use dark translucent media ink or violet fill with high-contrast 12px text.
+- **Style:** Short pill labels use dark translucent media ink or amber fill with high-contrast 12px text.
 - **State:** A chip names content type or current context; it never acts as unexplained decoration.
 
 ### Cards / Containers
@@ -212,20 +217,20 @@ Controls use compact 8–12px corners; product surfaces, artwork, dialogs, media
 ### Inputs / Fields
 
 - **Style:** The search field is a 44px paper surface with a one-pixel zinc border and 12px corners.
-- **Focus:** Border, white fill, and a violet-wash ring change together.
+- **Focus:** Border, white fill, and an amber-wash ring change together.
 - **Error / Disabled:** Disabled actions retain their label and lower opacity; search failures appear in a separate red recovery strip with the native-search action named.
 
 ### Navigation
 
-The sticky white header carries product identity, search, the five server-provided category groups, an icon-only theme control (toggling between the ISPCine-derived light and dark themes), and original-site recovery. On wide screens, Movies, Games, Software, TV Series, and Others are first-level navigation controls whose dropdowns expose their existing subcategories. At narrower widths those five controls collapse to Browse, which opens the complete inventory in one grouped modal sheet. Beneath the header, a quiet **Home › Current page** breadcrumb appears on catalog, category, search, empty, and detail views; Home is a 44px link, the current label truncates safely, and `aria-current="page"` preserves its meaning for assistive technology. Every action keeps an accessible name.
+The sticky white header carries product identity, search, the five server-provided category groups, an icon-only theme control (toggling between the ISPCine-derived light and dark themes), and original-site recovery. Navbar Browse opens the complete inventory in one grouped modal sheet. The page-level **Change category** action reuses that browser with a narrower scope: only Movies on movie pages, only TV Series on series pages, and Games, Software, Others, plus future non-media groups on file pages. Contextual choosers maintain a three-column desktop rhythm: a single Movies or TV Series group spans the modal and distributes its categories across three columns, while File assigns its three server groups one column each. Beneath the header, a quiet **Home › Current page** breadcrumb appears on catalog, category, search, empty, and detail views; every breadcrumb label uses medium (500) weight, Home is a 44px link, the current label truncates safely, and `aria-current="page"` preserves its meaning for assistive technology. Every action keeps an accessible name.
 
 ### Catalog Poster Card
 
-The artwork is a fixed 3:4 scan target with a bottom gradient carrying only its title. Titles stay on one ellipsized line at rest, then reveal their complete wrapped text inside the fixed poster overlay on pointer hover or keyboard focus. Media, file, and series badges are intentionally omitted because the surrounding catalog and title already provide enough context. When ICC omits an image or its URL fails to load, the card replaces the broken browser image with the violet default poster and the appropriate media or file icon. Age and popularity stay below the artwork, so useful metadata remains readable without cluttering the poster.
+The artwork is a fixed 3:4 scan target with a bottom gradient carrying only its title. Titles stay on one ellipsized line at rest, then reveal their complete wrapped text inside the fixed poster overlay on pointer hover or keyboard focus. Media, file, and series badges are intentionally omitted because the surrounding catalog and title already provide enough context. When ICC omits an image or its URL fails to load, the card replaces the broken browser image with the amber default poster and the appropriate media or file icon. Age and popularity stay below the artwork, so useful metadata remains readable without cluttering the poster.
 
 ### Catalog Sorting
 
-The main grid places a themed **Sort by** menu in the section's right-side action group, immediately before Browse or Change category. Its trigger and options use equal left and right padding, while selected, hover, and keyboard-focus states stay within the violet and zinc system instead of inheriting operating-system blue. The selected value uses semibold weight and the menu options use medium weight so this utility control stays visually subordinate to the section heading and primary action. It preserves the server sequence by default and can sort loaded items by popularity in either direction or by name from A–Z and Z–A. Popularity is derived from the server's numeric Hits label; missing hit counts remain last. Sorting never changes the featured carousel's server-authored order and automatically reapplies when infinite loading adds items.
+The main grid places a themed **Sort by** menu in the section's right-side action group, immediately before Browse or Change category. Its trigger and options use equal left and right padding, while selected, hover, and keyboard-focus states stay within the amber and neutral system instead of inheriting operating-system blue. The selected value and menu options use medium weight so this utility control stays visually subordinate to the section heading and primary action. It preserves the server sequence by default and can sort loaded items by popularity in either direction or by name from A–Z and Z–A. Popularity is derived from the server's numeric Hits label; missing hit counts remain last. Sorting never changes the featured carousel's server-authored order and automatically reapplies when infinite loading adds items.
 
 ### Featured Carousel
 
@@ -233,17 +238,19 @@ The home catalog preserves the original ICC carousel's unique titles, images, li
 
 ### Media Detail
 
-Before playback, playable video uses a wide dark frame with the selected file and download action immediately below. Series add explicit episode rows and place an **Export N download links** action beside the episode count. The export saves a UTF-8 text file with one absolute server-provided episode URL per line; individual episode downloads remain visible. Non-video archives replace the broken player with a direct file explanation and download action.
+Before playback, playable video uses a wide dark frame beside a consolidated Details panel. For series, that panel owns metadata, season selection, and series export actions so metadata is not repeated below the player. Explicit episode rows follow the primary 70/30 layout, with related titles after them. The export saves a UTF-8 text file with one absolute server-provided episode URL per line; individual episode downloads remain visible. File pages use a poster-and-reading layout that preserves the server's descriptive copy. Single archives and multi-file collections expose ordered amber download actions with their formats and sizes; information-only pages show a deliberate no-download state instead of restoring the legacy interface.
 
 ### Immersive Media Player
 
 Starting a playable movie or selected episode opens an edge-to-edge near-black screening room. The top control group keeps **Exit player**, the title, and selected source or episode context visible together. The bottom transport groups a scrubber, play/pause, 10-second rewind and forward, mute and volume, time, keyboard help, and fullscreen without collisions at narrow widths.
 
+Clicking the unobstructed video surface toggles play and pause. Player controls, episode navigation, dialogs, and sliders retain their own actions and never trigger the surface toggle through event bubbling.
+
 Space or K toggles play/pause; Left and Right seek 10 seconds; Up and Down change volume; M toggles mute; F toggles fullscreen; ? opens help; and Escape closes help before exiting the player. These shortcuts work throughout the player, while a focused progress or volume range retains its native arrow-key behavior. Help is a true modal: focus stays inside it, returns to its invoker on close, and returns to the launch action when the player exits.
 
 Controls auto-hide only during active playback. Pointer movement, focus, and keyboard actions reveal them; focused controls and an open shortcut dialog keep them visible. Paused, ended, buffering, and playback-error states remain explicit, with replay, retry, and exit-to-details paths as appropriate. Motion-dependent fades, scaling, and spinners yield to reduced-motion preferences.
 
-A finite positive duration enables the normal timeline and remaining-time display. Unknown, `NaN`, or infinite duration produces a disabled neutral timeline, elapsed time only, and an accessible “duration unavailable” description; the interface never invents a remaining time. The visual language stays Archivo over near-black and zinc, with white transport controls and restrained violet reserved for progress, action, and focus. Playback begins only after a user action and adds no permission, telemetry, or network dependency.
+A finite positive duration enables the normal timeline and remaining-time display. Unknown, `NaN`, or infinite duration produces a disabled neutral timeline, elapsed time only, and an accessible “duration unavailable” description; the interface never invents a remaining time. The visual language stays Manrope and Space Grotesk over near-black, with white transport controls and amber reserved for progress, volume, play, action, and focus. Playback begins only after a user action and adds no permission, telemetry, or network dependency.
 
 ## Do's and Don'ts
 
@@ -260,7 +267,7 @@ A finite positive duration enables the normal timeline and remaining-time displa
 ### Don't:
 
 - **Don't** let featured auto-advance continue during hover, keyboard focus, an explicit pause, a hidden document, or reduced motion; don't repeat the carousel on category/search views or let it dominate the first mobile viewport.
-- **Don't** scatter violet across routine containers or add a second accent color for normal actions.
+- **Don't** scatter amber across routine containers or add a second accent color for normal actions.
 - **Don't** hide episode selection or download behind unlabeled icon-only controls.
 - **Don't** place every section in a floating card or give every neutral surface a shadow.
 - **Don't** remove the path back to the original server or visually disguise server-provided links.
