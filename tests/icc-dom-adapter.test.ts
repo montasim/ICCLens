@@ -1,7 +1,9 @@
 import { isPlayableMediaHref, type DetailPage } from '../src/domain/icc-page'
 import {
   IccDomAdapter,
+  groupMediaSeasons,
   parseIccDocument,
+  parseEpisodeIdentity,
 } from '../src/infrastructure/icc-dom-adapter'
 
 const CATEGORY_GROUPS = [
@@ -122,6 +124,44 @@ function documentFor(body: string): Document {
 }
 
 describe('ICC DOM adapter', () => {
+  it('extracts season and episode identity from server labels and URLs', () => {
+    expect(parseEpisodeIdentity('Mousetrap.S02E07.1080p.mp4')).toEqual({
+      seasonNumber: 2,
+      episodeNumber: 7,
+    })
+    expect(
+      parseEpisodeIdentity(
+        'http://media/show/Season%2003/Episode%2012/video.mp4',
+      ),
+    ).toEqual({ seasonNumber: 3, episodeNumber: 12 })
+    expect(parseEpisodeIdentity('1080p WEBRip')).toEqual({
+      seasonNumber: null,
+      episodeNumber: null,
+    })
+  })
+
+  it('groups and orders parsed episodes by season and episode', () => {
+    const source = (seasonNumber: number, episodeNumber: number) => ({
+      id: `${seasonNumber}-${episodeNumber}`,
+      label: `S${seasonNumber}E${episodeNumber}`,
+      href: `http://media/S${seasonNumber}E${episodeNumber}.mp4`,
+      mediaType: 'video/mp4',
+      size: null,
+      playable: true,
+      seasonNumber,
+      episodeNumber,
+    })
+    const seasons = groupMediaSeasons([
+      source(2, 2),
+      source(1, 3),
+      source(1, 1),
+    ])
+    expect(seasons.map((season) => season.number)).toEqual([1, 2])
+    expect(
+      seasons[0]?.episodes.map((episode) => episode.episodeNumber),
+    ).toEqual([1, 3])
+  })
+
   it('parses the shared dashboard template and all 45 category links', () => {
     const source = documentFor(`
       ${navigation}
@@ -248,6 +288,170 @@ describe('ICC DOM adapter', () => {
     expect(page.sources[0]?.playable).toBe(false)
     expect(page.sources[0]?.size).toBe('8.87 GB')
   })
+
+  it('parses a download collection page instead of leaving the original UI', () => {
+    const source = documentFor(`
+      ${navigation}
+      <main>
+        <div class="row">
+          <div class="col-md-4"><img src="files/cambridge-ielts.jpg" /></div>
+          <div class="col-md-8">
+            <b><span>Cambridge IELTS Books (01-15) with Listening Tests</span></b>
+            <p>Fifteen practice books with listening-test resources.</p>
+            <a class="btn btn-info" href="http://10.16.100.212/ielts/book-01.pdf">1. Download <span class="pull-right">97.50 MB</span></a>
+            <a class="btn btn-info" href="http://10.16.100.212/ielts/book-02.pdf">2. Download <span class="pull-right">88.80 MB</span></a>
+          </div>
+        </div>
+      </main>
+    `)
+
+    const result = parseIccDocument(
+      source,
+      'http://10.16.100.244/download.php?session=test-session&load=ielts',
+    )
+
+    expect(result.ok).toBe(true)
+    if (!result.ok || result.page.kind !== 'detail') return
+    expect(result.page).toMatchObject({
+      contentKind: 'file',
+      title: 'Cambridge IELTS Books (01-15) with Listening Tests',
+      posterHref: 'http://10.16.100.244/files/cambridge-ielts.jpg',
+    })
+    expect(result.page.sources).toEqual([
+      expect.objectContaining({
+        label: 'File 01',
+        href: 'http://10.16.100.212/ielts/book-01.pdf',
+        size: '97.50 MB',
+        playable: false,
+      }),
+      expect.objectContaining({
+        label: 'File 02',
+        href: 'http://10.16.100.212/ielts/book-02.pdf',
+        size: '88.80 MB',
+        playable: false,
+      }),
+    ])
+  })
+
+  it('parses an informational download page with no file links', () => {
+    const source = documentFor(`
+      ${navigation}
+      <main>
+        <div class="row">
+          <div class="col-md-4"><img src="files/paradoxical-sazid.jpg" /></div>
+          <article class="col-md-8">
+            <b><span>Paradoxical Sajid 1 &amp; 2</span></b>
+            <p>Two books that explore questions of belief and modern life.</p>
+            <p>This page contains descriptive information but no download link.</p>
+          </article>
+        </div>
+      </main>
+    `)
+
+    const result = parseIccDocument(
+      source,
+      'http://10.16.100.244/download.php?session=test-session&load=sajid',
+    )
+
+    expect(result.ok).toBe(true)
+    if (!result.ok || result.page.kind !== 'detail') return
+    expect(result.page).toMatchObject({
+      contentKind: 'file',
+      title: 'Paradoxical Sajid 1 & 2',
+      sources: [],
+    })
+  })
+
+  it.each([
+    {
+      name: 'download collection',
+      body: `
+        <div class="container" id="legacy-download-detail">
+          <div class="row">
+            <div class="col-md-4"><img src="files/cambridge-ielts.jpg" /></div>
+            <div class="col-md-8">
+              <div class="panel panel-default">
+                <div class="panel-heading"><b><span>CAMBRIDGE IELTS BOOKS (01-15) WITH LISTENING TESTS</span></b></div>
+                <div class="panel-body">
+                  <a class="btn btn-info" href="http://10.16.100.212/ielts/book-01.pdf">1. Download <span class="pull-right">97.50 MB</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      title: 'CAMBRIDGE IELTS BOOKS (01-15) WITH LISTENING TESTS',
+      sourceCount: 1,
+    },
+    {
+      name: 'information-only book',
+      body: `
+        <div class="container" id="legacy-download-detail">
+          <div class="row">
+            <div class="col-md-4"><img src="files/paradoxical-sazid.jpg" /></div>
+            <div class="col-md-8">
+              <div class="panel panel-default">
+                <div class="panel-heading"><b>PARADOXICAL SAZID 1 &amp; 2</b></div>
+                <div class="panel-body"><p>Two books that explore questions of belief and modern life.</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      title: 'PARADOXICAL SAZID 1 & 2',
+      sourceCount: 0,
+    },
+  ])('parses a legacy $name page without a main element', (scenario) => {
+    const source = documentFor(`${navigation}${scenario.body}`)
+    const result = parseIccDocument(
+      source,
+      'http://10.16.100.244/download.php?session=test-session&load=legacy',
+    )
+
+    expect(result.ok).toBe(true)
+    if (!result.ok || result.page.kind !== 'detail') return
+    expect(result.page.title).toBe(scenario.title)
+    expect(result.page.sources).toHaveLength(scenario.sourceCount)
+  })
+
+  it.each([
+    {
+      titleMarkup:
+        '<div class="panel-body"><b>CAMBRIDGE IELTS BOOKS (01-15) WITH LISTENING TESTS</b></div>',
+      title: 'CAMBRIDGE IELTS BOOKS (01-15) WITH LISTENING TESTS',
+    },
+    {
+      titleMarkup:
+        '<div class="detail-copy"><strong>PARADOXICAL SAZID 1 &amp; 2</strong></div>',
+      title: 'PARADOXICAL SAZID 1 & 2',
+    },
+  ])(
+    'parses a plain legacy detail heading from the poster content column',
+    (scenario) => {
+      const source = documentFor(`
+        ${navigation}
+        <div class="container">
+          <div class="row">
+            <div class="col-md-4"><img src="images/legacy-book.jpg" /></div>
+            <div class="col-md-8">
+              ${scenario.titleMarkup}
+              <a class="btn btn-info" href="http://10.16.100.212/book.pdf">
+                1. Download <span class="pull-right">2.31 MB</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      `)
+      const result = parseIccDocument(
+        source,
+        'http://10.16.100.244/download.php?session=test-session&load=plain-heading',
+      )
+
+      expect(result.ok).toBe(true)
+      if (!result.ok || result.page.kind !== 'detail') return
+      expect(result.page.title).toBe(scenario.title)
+    },
+  )
 
   it('recognizes only browser-oriented video file extensions', () => {
     expect(isPlayableMediaHref('http://media/movie.mp4')).toBe(true)

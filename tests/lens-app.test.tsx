@@ -3,7 +3,15 @@ import userEvent from '@testing-library/user-event'
 import { vi } from 'vitest'
 
 import { IccSiteService, type IccSitePort } from '../src/application/icc-site'
-import type { CatalogPage, DetailPage } from '../src/domain/icc-page'
+import {
+  LensPreferencesService,
+  type LensPreferencesPort,
+} from '../src/application/preferences'
+import type {
+  CatalogPage,
+  CategoryGroup,
+  DetailPage,
+} from '../src/domain/icc-page'
 import { CatalogCard } from '../src/features/icc-lens/catalog-card'
 import { CatalogView } from '../src/features/icc-lens/catalog-view'
 import { DetailView } from '../src/features/icc-lens/detail-view'
@@ -53,6 +61,28 @@ const catalog: CatalogPage = {
   hasMore: false,
 }
 
+const categoryGroupSeeds = [
+  ['Movies', '19', 'English Movies'],
+  ['Games', '21', 'Android Games'],
+  ['Software', '31', 'Developer Tools'],
+  ['TV Series', '48', 'English Series'],
+  ['Others', '51', 'E-Books'],
+] as const
+
+const allCategoryGroups: CategoryGroup[] = categoryGroupSeeds.map(
+  ([name, id, categoryName]) => ({
+    name,
+    categories: [
+      {
+        id,
+        name: categoryName,
+        count: 12,
+        href: `http://10.16.100.244/dashboard.php?session=test&category=${id}`,
+      },
+    ],
+  }),
+)
+
 const moviePage: DetailPage = {
   kind: 'detail',
   contentKind: 'movie',
@@ -61,6 +91,7 @@ const moviePage: DetailPage = {
   homeHref: catalog.homeHref,
   groups: catalog.groups,
   metadata: [],
+  description: [],
   trailerHref: null,
   related: [],
   sources: [
@@ -73,6 +104,30 @@ const moviePage: DetailPage = {
       playable: true,
     },
   ],
+}
+
+function preferencesFor() {
+  let enabled = true
+  let theme: 'light' | 'dark' = 'light'
+  let history: unknown = []
+  const port: LensPreferencesPort = {
+    loadEnabled: async () => enabled,
+    saveEnabled: async (value) => {
+      enabled = value
+    },
+    loadTheme: async () => theme,
+    saveTheme: async (value) => {
+      theme = value
+    },
+    loadWatchHistory: async () => history,
+    saveWatchHistory: async (value) => {
+      history = value
+    },
+    clearWatchHistory: async () => {
+      history = []
+    },
+  }
+  return new LensPreferencesService(port)
 }
 
 function mockMediaPlayback() {
@@ -165,9 +220,11 @@ describe('ICC Lens application UI', () => {
     expect(
       within(categoryBreadcrumb).getByRole('link', { name: 'Home' }),
     ).toHaveAttribute('href', catalog.homeHref)
-    expect(
-      within(categoryBreadcrumb).getByText('English Movies'),
-    ).toHaveAttribute('aria-current', 'page')
+    const currentBreadcrumb =
+      within(categoryBreadcrumb).getByText('English Movies')
+    expect(currentBreadcrumb).toHaveAttribute('aria-current', 'page')
+    expect(currentBreadcrumb).toHaveClass('font-medium')
+    expect(currentBreadcrumb).not.toHaveClass('font-semibold', 'font-bold')
     expect(
       screen.getAllByRole('heading', { name: 'English Movies' }),
     ).toHaveLength(1)
@@ -244,6 +301,8 @@ describe('ICC Lens application UI', () => {
         initialPage={catalog}
         logoUrl="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
         service={serviceFor()}
+        preferences={preferencesFor()}
+        pageHref={catalog.homeHref}
         onRestoreOriginal={restore}
       />,
     )
@@ -254,18 +313,25 @@ describe('ICC Lens application UI', () => {
     expect(
       screen.getByRole('link', { name: /Original Featured Title/ }),
     ).toHaveAttribute('href', expect.stringContaining('play=featured-1'))
-    await user.click(screen.getByRole('button', { name: 'Movies' }))
+    expect(screen.getByRole('link', { name: 'Movie' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('category=9'),
+    )
+    const primaryNav = screen.getByRole('navigation', { name: 'Primary pages' })
     expect(
-      screen.getByRole('region', { name: 'Movies categories' }),
-    ).toBeInTheDocument()
+      within(primaryNav).getByRole('link', { name: 'Home' }),
+    ).toHaveAttribute('aria-current', 'page')
     expect(
-      screen.getByRole('link', { name: /English Movies/ }),
-    ).toHaveAttribute('href', expect.stringContaining('category=19'))
-    await user.keyboard('{Escape}')
-    expect(
-      screen.queryByRole('region', { name: 'Movies categories' }),
-    ).not.toBeInTheDocument()
-
+      within(primaryNav).getByRole('link', { name: 'Movie' }),
+    ).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('link', { name: 'Series' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('category=38'),
+    )
+    expect(screen.getByRole('link', { name: 'File' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('category=68'),
+    )
     await user.click(screen.getByRole('button', { name: 'Browse' }))
     expect(
       screen.getByRole('dialog', { name: 'Browse the full library' }),
@@ -277,8 +343,130 @@ describe('ICC Lens application UI', () => {
     await user.click(
       screen.getByRole('button', { name: 'Close category browser' }),
     )
+    await user.click(screen.getByRole('button', { name: 'Browse' }))
     await user.click(screen.getByRole('button', { name: 'Show original site' }))
     expect(restore).toHaveBeenCalledOnce()
+  })
+
+  it('selects the parent navbar menu for the current category', () => {
+    const categoryPage: CatalogPage = {
+      ...catalog,
+      view: 'category',
+      title: 'English Movies',
+      featuredItems: [],
+    }
+    render(
+      <LensApp
+        initialPage={categoryPage}
+        logoUrl="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+        service={serviceFor(categoryPage)}
+        preferences={preferencesFor()}
+        pageHref="http://10.16.100.244/dashboard.php?session=test&category=19"
+        onRestoreOriginal={vi.fn()}
+      />,
+    )
+
+    const primaryNav = screen.getByRole('navigation', { name: 'Primary pages' })
+    expect(
+      within(primaryNav).getByRole('link', { name: 'Movie' }),
+    ).toHaveAttribute('aria-current', 'page')
+    expect(
+      within(primaryNav).getByRole('link', { name: 'Home' }),
+    ).not.toHaveAttribute('aria-current')
+  })
+
+  it('scopes page-level category changes while navbar Browse stays global', async () => {
+    const user = userEvent.setup()
+    const cases = [
+      {
+        id: '19',
+        title: 'English Movies',
+        dialog: 'Change movie category',
+        visible: ['Movies'],
+        hidden: ['Games', 'Software', 'TV Series', 'Others'],
+      },
+      {
+        id: '48',
+        title: 'English Series',
+        dialog: 'Change TV series category',
+        visible: ['TV Series'],
+        hidden: ['Movies', 'Games', 'Software', 'Others'],
+      },
+      {
+        id: '21',
+        title: 'Android Games',
+        dialog: 'Change file category',
+        visible: ['Games', 'Software', 'Others'],
+        hidden: ['Movies', 'TV Series'],
+      },
+    ]
+
+    for (const scenario of cases) {
+      const page: CatalogPage = {
+        ...catalog,
+        view: 'category',
+        title: scenario.title,
+        groups: allCategoryGroups,
+        featuredItems: [],
+      }
+      const view = render(
+        <LensApp
+          initialPage={page}
+          logoUrl="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+          service={serviceFor(page)}
+          preferences={preferencesFor()}
+          pageHref={`http://10.16.100.244/dashboard.php?session=test&category=${scenario.id}`}
+          onRestoreOriginal={vi.fn()}
+        />,
+      )
+
+      await user.click(screen.getByRole('button', { name: 'Change category' }))
+      const dialog = screen.getByRole('dialog', { name: scenario.dialog })
+      for (const name of scenario.visible) {
+        expect(within(dialog).getByRole('heading', { name })).toBeVisible()
+      }
+      const firstVisibleSection = within(dialog)
+        .getByRole('heading', { name: scenario.visible[0] })
+        .closest('section')
+      if (scenario.visible.length === 1) {
+        expect(firstVisibleSection).toHaveClass('lg:col-span-3')
+        expect(firstVisibleSection?.querySelector('ul')).toHaveClass(
+          'lg:grid-cols-3',
+        )
+      } else {
+        expect(firstVisibleSection).not.toHaveClass('lg:col-span-3')
+      }
+      for (const name of scenario.hidden) {
+        expect(
+          within(dialog).queryByRole('heading', { name }),
+        ).not.toBeInTheDocument()
+      }
+      view.unmount()
+    }
+
+    const homePage: CatalogPage = {
+      ...catalog,
+      groups: allCategoryGroups,
+    }
+    render(
+      <LensApp
+        initialPage={homePage}
+        logoUrl="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+        service={serviceFor(homePage)}
+        preferences={preferencesFor()}
+        pageHref={homePage.homeHref}
+        onRestoreOriginal={vi.fn()}
+      />,
+    )
+    await user.click(screen.getByRole('button', { name: 'Browse' }))
+    const globalDialog = screen.getByRole('dialog', {
+      name: 'Browse the full library',
+    })
+    for (const group of allCategoryGroups) {
+      expect(
+        within(globalDialog).getByRole('heading', { name: group.name }),
+      ).toBeVisible()
+    }
   })
 
   it('keeps search suggestions hidden after submitting the query', async () => {
@@ -306,6 +494,8 @@ describe('ICC Lens application UI', () => {
         initialPage={catalog}
         logoUrl="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
         service={new IccSiteService(port)}
+        preferences={preferencesFor()}
+        pageHref={catalog.homeHref}
         onRestoreOriginal={vi.fn()}
       />,
     )
@@ -318,13 +508,29 @@ describe('ICC Lens application UI', () => {
       await screen.findByRole('list', { name: 'Search suggestions' }),
     ).toBeVisible()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Search' }))
+    fireEvent.click(
+      within(
+        screen
+          .getByRole('searchbox', { name: 'Search the ICC catalog' })
+          .closest('form')!,
+      ).getByRole('button', { name: 'Search' }),
+    )
     expect(
       await screen.findByRole('heading', {
         level: 1,
         name: 'Results for “wwe”',
       }),
     ).toBeVisible()
+    const results = screen.getByRole('region', { name: 'Catalog items' })
+    expect(results).toHaveClass('grid-cols-2')
+    expect(
+      within(results).getByRole('link', {
+        name: /A Sad and Beautiful World.*Opens details/,
+      }),
+    ).toBeVisible()
+    expect(
+      within(results).queryByRole('link', { name: 'Open result' }),
+    ).not.toBeInTheDocument()
     await act(
       () =>
         new Promise((resolve) => {
@@ -347,6 +553,7 @@ describe('ICC Lens application UI', () => {
       homeHref: catalog.homeHref,
       groups: catalog.groups,
       metadata: [],
+      description: [],
       trailerHref: null,
       related: [],
       sources: [
@@ -378,6 +585,92 @@ describe('ICC Lens application UI', () => {
     ).toHaveAttribute('href', 'http://10.16.100.202/course.rar')
   })
 
+  it('renders file collections with preserved descriptions and download rows', () => {
+    const collectionPage: DetailPage = {
+      kind: 'detail',
+      contentKind: 'file',
+      title: 'Cambridge IELTS Books',
+      posterHref: 'http://10.16.100.244/files/ielts.jpg',
+      homeHref: catalog.homeHref,
+      groups: catalog.groups,
+      metadata: [],
+      description: ['Practice books with listening-test resources.'],
+      trailerHref: null,
+      related: [],
+      sources: [
+        {
+          id: 'file-1',
+          label: 'File 01',
+          href: 'http://10.16.100.212/ielts/book-01.pdf',
+          mediaType: null,
+          size: '97.50 MB',
+          playable: false,
+        },
+        {
+          id: 'file-2',
+          label: 'File 02',
+          href: 'http://10.16.100.212/ielts/book-02.pdf',
+          mediaType: null,
+          size: '88.80 MB',
+          playable: false,
+        },
+      ],
+    }
+
+    render(<DetailView page={collectionPage} />)
+
+    expect(
+      screen.getByText('Practice books with listening-test resources.'),
+    ).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Files' })).toHaveAttribute(
+      'href',
+      'http://10.16.100.244/dashboard.php?session=test&category=68',
+    )
+    expect(screen.getByRole('heading', { name: 'Downloads' })).toBeVisible()
+    expect(screen.getByText('2 files available')).toBeVisible()
+    const downloads = screen.getByRole('list', { name: 'Downloads' })
+    expect(downloads).toHaveClass('xl:grid-cols-5')
+    expect(within(downloads).getAllByRole('listitem')).toHaveLength(2)
+    expect(
+      screen.getByRole('link', { name: 'Download File 01 · 97.50 MB' }),
+    ).toHaveAttribute('href', 'http://10.16.100.212/ielts/book-01.pdf')
+    expect(
+      screen.getByRole('link', { name: 'Download File 02 · 88.80 MB' }),
+    ).toHaveAttribute('href', 'http://10.16.100.212/ielts/book-02.pdf')
+  })
+
+  it('renders information-only file pages without inventing a download', () => {
+    const informationPage: DetailPage = {
+      kind: 'detail',
+      contentKind: 'file',
+      title: 'Paradoxical Sajid 1 & 2',
+      posterHref: 'http://10.16.100.244/files/sajid.jpg',
+      homeHref: catalog.homeHref,
+      groups: catalog.groups,
+      metadata: [],
+      description: [
+        'Two books that explore questions of belief and modern life.',
+      ],
+      trailerHref: null,
+      related: [],
+      sources: [],
+    }
+
+    render(<DetailView page={informationPage} />)
+
+    expect(
+      screen.getByText(
+        'Two books that explore questions of belief and modern life.',
+      ),
+    ).toBeVisible()
+    expect(
+      screen.getByText('No downloadable file is listed on this ICC page.'),
+    ).toBeVisible()
+    expect(
+      screen.queryByRole('link', { name: /Download/ }),
+    ).not.toBeInTheDocument()
+  })
+
   it('opens an immersive player with complete keyboard control and recovery', async () => {
     mockMediaPlayback()
     const user = userEvent.setup()
@@ -388,6 +681,14 @@ describe('ICC Lens application UI', () => {
       name: 'Playing Example Movie, 1080p WEBRip',
     })
     expect(player).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Forward 10 seconds' }))
+    expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
+
+    await user.click(player)
+    expect(screen.getAllByRole('button', { name: 'Play' })).toHaveLength(2)
+    await user.click(player)
     expect(screen.getByRole('button', { name: 'Pause' })).toBeInTheDocument()
 
     await user.keyboard('k')
@@ -453,7 +754,7 @@ describe('ICC Lens application UI', () => {
     ).toHaveFocus()
   })
 
-  it('renders every series episode as a visible play and download row', async () => {
+  it('renders every series episode as a visible play and download card', async () => {
     mockMediaPlayback()
     const seriesPage: DetailPage = {
       kind: 'detail',
@@ -463,6 +764,7 @@ describe('ICC Lens application UI', () => {
       homeHref: catalog.homeHref,
       groups: catalog.groups,
       metadata: [],
+      description: [],
       trailerHref: null,
       related: [],
       sources: ['S01E01', 'S01E02'].map((label, index) => ({
@@ -477,6 +779,10 @@ describe('ICC Lens application UI', () => {
 
     render(<DetailView page={seriesPage} />)
 
+    expect(screen.getByRole('heading', { name: 'Details' })).toBeVisible()
+    expect(
+      screen.queryByRole('heading', { name: 'Series details' }),
+    ).not.toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: '2 Episodes' }),
     ).toBeInTheDocument()

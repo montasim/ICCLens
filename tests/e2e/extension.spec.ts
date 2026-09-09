@@ -211,13 +211,79 @@ function detailDocument(playId: string | null) {
   `)
 }
 
+function downloadDocument(loadId: string | null) {
+  if (loadId === 'delayed') {
+    return documentShell(`
+      <div id="legacy">Legacy delayed download page</div>${navigation}
+      <div id="late-download-detail"></div>
+      <script>
+        window.setTimeout(() => {
+          document.querySelector('#late-download-detail').innerHTML = \`
+            <div class="container">
+              <div class="row">
+                <div class="col-md-4"><img src="files/ielts.svg" /></div>
+                <div class="col-md-8">
+                  <div class="panel panel-default">
+                    <div class="panel-heading"><b>LATE CAMBRIDGE COLLECTION</b></div>
+                    <div class="panel-body">
+                      <p>Inserted after the initial document idle parse.</p>
+                      <a class="btn btn-info" href="http://10.16.100.212/ielts/book-01.pdf">1. Download <span class="pull-right">97.50 MB</span></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          \`
+        }, 250)
+      </script>
+    `)
+  }
+  if (loadId === 'information') {
+    return documentShell(`
+      <div id="legacy"><h1>Legacy information page</h1></div>${navigation}
+      <div class="container" id="legacy-download-detail">
+        <div class="row">
+          <div class="col-md-4"><img src="files/sajid.svg" /></div>
+          <div class="col-md-8">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <div class="detail-copy"><strong>PARADOXICAL SAZID 1 &amp; 2</strong></div>
+                <p>Two books that explore questions of belief and modern life.</p>
+                <p>This ICC page provides information only.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `)
+  }
+  return documentShell(`
+    <div id="legacy"><h1>Legacy download collection</h1></div>${navigation}
+    <div class="container" id="legacy-download-detail">
+      <div class="row">
+        <div class="col-md-4"><img src="files/ielts.svg" /></div>
+        <div class="col-md-8">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <b>CAMBRIDGE IELTS BOOKS (01-15) WITH LISTENING TESTS</b>
+              <p>Practice books with listening-test resources.</p>
+              <a class="btn btn-info" href="http://10.16.100.212/ielts/book-01.pdf">1. Download <span class="pull-right">97.50 MB</span></a>
+              <a class="btn btn-info" href="http://10.16.100.212/ielts/book-02.pdf">2. Download <span class="pull-right">88.80 MB</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `)
+}
+
 function documentShell(body: string) {
   return `<!doctype html><html lang="en"><head><title>ICC FTP</title><style>html{font-size:10px}html,body{margin:0}</style></head><body>${body}</body></html>`
 }
 
 const poster = `
   <svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800">
-    <defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#18181b"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs>
+    <defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#18181b"/><stop offset="1" stop-color="#fbbf24"/></linearGradient></defs>
     <rect width="600" height="800" fill="url(#g)"/><circle cx="455" cy="180" r="140" fill="#ddd6fe" opacity=".22"/>
     <path d="M80 600L285 300l235 300v120H80z" fill="#f4f4f5" opacity=".18"/>
   </svg>
@@ -305,7 +371,7 @@ test('the unpacked extension replaces the catalog and preserves instant fallback
     }),
   ).toBeVisible()
   const featured = page.getByRole('region', { name: 'Featured on ICC' })
-  expect(Math.round((await featured.boundingBox())?.width ?? 0)).toBe(1512)
+  expect(Math.round((await featured.boundingBox())?.width ?? 0)).toBe(1656)
   const featuredCard = featured.getByRole('link', { name: /Awarapan 2/ })
   await expect(featuredCard).toBeVisible()
   await expect(featuredCard.getByText('Media', { exact: true })).toHaveCount(0)
@@ -331,7 +397,7 @@ test('the unpacked extension replaces the catalog and preserves instant fallback
     name: /Mushoku Tensei Jobless Reincarnation Season 02 Completed/,
   })
   const longTitle = longTitleCard.locator('strong')
-  await expect(longTitle).toHaveCSS('font-weight', '600')
+  await expect(longTitle).toHaveCSS('font-weight', '700')
   await page.mouse.move(0, 0)
   const restingTitleHeight = await longTitle.evaluate(
     (title) => title.getBoundingClientRect().height,
@@ -345,49 +411,53 @@ test('the unpacked extension replaces the catalog and preserves instant fallback
       longTitle.evaluate((title) => title.getBoundingClientRect().height),
     )
     .toBeGreaterThan(restingTitleHeight)
-  const sort = page.getByRole('button', { name: /^Sort by,/ })
+  const sort = page.getByRole('combobox', { name: /^Sort by,/ })
   const catalogItems = page.getByRole('region', { name: 'Catalog items' })
   const newestHeading = page.getByRole('heading', {
     level: 2,
     name: 'Newest additions',
   })
-  await expect(newestHeading).toHaveCSS('font-weight', '700')
-  await expect(newestHeading).toHaveCSS('color', 'rgb(39, 39, 42)')
-  await expect(page.getByRole('button', { name: 'Search' })).toHaveCSS(
-    'background-color',
-    'rgb(39, 39, 42)',
+  await expect(newestHeading).toHaveCSS('font-weight', '500')
+  await expect(newestHeading).toHaveCSS('color', 'rgb(0, 0, 0)')
+  await expect(page.getByRole('button', { name: 'Browse library' })).toHaveCSS(
+    'font-weight',
+    '500',
   )
-  await expect(sort.locator('strong')).toHaveCSS('font-weight', '600')
+  await expect(
+    page
+      .getByRole('searchbox', { name: 'Search the ICC catalog' })
+      .locator('..')
+      .getByRole('button', { name: 'Search' }),
+  ).toHaveCSS('background-color', 'rgb(251, 191, 36)')
+  await expect(sort.locator('strong')).toHaveCSS('font-weight', '500')
   await sort.focus()
   await page.keyboard.press('ArrowDown')
-  const newestOption = page.getByRole('menuitemradio', { name: 'Newest' })
+  const newestOption = page.getByRole('option', { name: 'Newest' })
   await expect(newestOption).toBeFocused()
   await expect(newestOption).toHaveCSS('font-weight', '500')
   await page.keyboard.press('ArrowDown')
   await expect(
-    page.getByRole('menuitemradio', { name: 'Popularity: High to low' }),
+    page.getByRole('option', { name: 'Popularity: High to low' }),
   ).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(sort).toBeFocused()
   await sort.click()
-  await page
-    .getByRole('menuitemradio', { name: 'Popularity: High to low' })
-    .click()
+  await page.getByRole('option', { name: 'Popularity: High to low' }).click()
   await expect(catalogItems.getByRole('link').first()).toHaveAccessibleName(
     /North by Morning/,
   )
   await sort.click()
-  await page.getByRole('menuitemradio', { name: 'Name: A–Z' }).click()
+  await page.getByRole('option', { name: 'Name: A–Z' }).click()
   await expect(catalogItems.getByRole('link').first()).toHaveAccessibleName(
     /Adobe Creative Collection/,
   )
   await sort.click()
-  await page.getByRole('menuitemradio', { name: 'Name: Z–A' }).click()
+  await page.getByRole('option', { name: 'Name: Z–A' }).click()
   await expect(catalogItems.getByRole('link').first()).toHaveAccessibleName(
     /The Quiet Archive/,
   )
   await sort.click()
-  await page.getByRole('menuitemradio', { name: 'Newest' }).click()
+  await page.getByRole('option', { name: 'Newest' }).click()
   await page.mouse.move(0, 0)
   await longTitleCard.focus()
   await expect
@@ -435,37 +505,22 @@ test('the unpacked extension replaces the catalog and preserves instant fallback
     page.getByRole('button', { name: 'Load more items' }),
   ).toHaveCount(0)
   await expect(page.getByText('Loaded from the next page')).toBeVisible()
-  const logo = page.getByRole('link', { name: 'ICC Lens home' }).locator('img')
-  await expect(logo).toHaveJSProperty('complete', true)
-  expect(
-    await logo.evaluate((image) => (image as HTMLImageElement).naturalWidth),
-  ).toBeGreaterThan(0)
+  await expect(page.getByRole('link', { name: /ICC Lens/ })).toBeVisible()
 
-  const categoryNav = page.getByRole('navigation', {
-    name: 'Catalog categories',
+  const primaryNav = page.getByRole('navigation', {
+    name: 'Primary pages',
   })
-  for (const categoryName of [
-    'Movies',
-    'Games',
-    'Software',
-    'TV Series',
-    'Others',
-  ]) {
-    await expect(
-      categoryNav.getByRole('button', { name: categoryName, exact: true }),
-    ).toBeVisible()
+  for (const pageName of ['Home', 'Movie', 'Series', 'File']) {
+    await expect(primaryNav.getByText(pageName, { exact: true })).toBeVisible()
   }
-  await categoryNav.getByRole('button', { name: 'Movies', exact: true }).click()
-  const moviesMenu = page.getByRole('region', {
-    name: 'Movies categories',
+  await page.getByRole('button', { name: 'Browse', exact: true }).click()
+  const libraryDialog = page.getByRole('dialog', {
+    name: 'Browse the full library',
   })
-  await expect(moviesMenu).toBeVisible()
-  await expect(moviesMenu.getByRole('link')).toHaveCount(18)
-  await expect(
-    moviesMenu.getByRole('link', { name: /English Movies/ }),
-  ).toBeVisible()
-  await page.keyboard.press('Escape')
-  await expect(moviesMenu).toHaveCount(0)
+  await expect(libraryDialog).toBeVisible()
+  await libraryDialog
+    .getByRole('button', { name: 'Close category browser' })
+    .click()
 
   await expectNoAxeViolations(page)
 
@@ -479,10 +534,10 @@ test('the unpacked extension replaces the catalog and preserves instant fallback
     level: 1,
     name: 'See the ICC library clearly.',
   })
-  await expect(popupHeading).toHaveCSS('font-weight', '700')
+  await expect(popupHeading).toHaveCSS('font-weight', '500')
   await expect(popupHeading.locator('..')).toHaveCSS(
     'background-color',
-    'rgb(111, 76, 195)',
+    'rgb(251, 191, 36)',
   )
   await expect(toggle).toHaveAttribute('aria-checked', 'true')
 
@@ -517,7 +572,7 @@ test('the unpacked extension replaces the catalog and preserves instant fallback
     await mkdir('.impeccable/review', { recursive: true })
     await page.setViewportSize({ width: 1920, height: 1000 })
     await sort.click()
-    await page.getByRole('menuitemradio', { name: 'Name: A–Z' }).hover()
+    await page.getByRole('option', { name: 'Name: A–Z' }).hover()
     await page.screenshot({
       path: '.impeccable/review/sort-menu.png',
       fullPage: true,
@@ -559,7 +614,7 @@ test('search submits the ICC server form from the packaged extension', async ({
   await search.fill('wwe')
   const suggestions = page.getByRole('list', { name: 'Search suggestions' })
   await expect(suggestions).toBeVisible()
-  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  await search.locator('..').getByRole('button', { name: 'Search' }).click()
 
   await expect(
     page.getByRole('heading', {
@@ -567,6 +622,32 @@ test('search submits the ICC server form from the packaged extension', async ({
       name: 'Results for “wwe”',
     }),
   ).toBeVisible()
+  const results = page.getByRole('region', { name: 'Catalog items' })
+  const resultCards = results.locator('article')
+  await expect(resultCards).toHaveCount(6)
+  await expect(
+    results.getByRole('link', {
+      name: /Mushoku Tensei.*Opens details/,
+    }),
+  ).toBeVisible()
+  await expect(results.getByRole('link', { name: 'Open result' })).toHaveCount(
+    0,
+  )
+  await expect
+    .poll(() =>
+      results.evaluate(
+        (grid) => getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+      ),
+    )
+    .toBe(6)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect
+    .poll(() =>
+      results.evaluate(
+        (grid) => getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+      ),
+    )
+    .toBe(2)
   expect(requests.searchPostBodies).toHaveLength(1)
   expect(requests.searchPostBodies[0]).toContain('wwe')
   await page.waitForTimeout(300)
@@ -605,37 +686,28 @@ test('movie, series, and archive pages receive purpose-built detail views', asyn
     level: 1,
     name: 'Example Movie',
   })
+  await expect(movieTitle).toHaveCSS('font-weight', '500')
+  await expect(page.getByRole('heading', { name: 'File details' })).toHaveCSS(
+    'font-weight',
+    '500',
+  )
+  await expect(page.getByRole('link', { name: 'Download file' })).toHaveCSS(
+    'font-weight',
+    '500',
+  )
   await expect(moviePlayer).toBeVisible()
   const [playerTop, titleTop] = await Promise.all([
     moviePlayer.evaluate((player) => player.getBoundingClientRect().top),
     movieTitle.evaluate((title) => title.getBoundingClientRect().top),
   ])
   expect(playerTop).toBeLessThan(titleTop)
-  expect(playerTop).toBeLessThan(240)
-  const trailerLink = page.getByRole('link', { name: 'Watch trailer' })
-  const posterImage = page.getByAltText('Poster for Example Movie')
-  await expect(trailerLink).toBeVisible()
-  const [trailerTop, posterTop] = await Promise.all([
-    trailerLink.evaluate((trailer) => trailer.getBoundingClientRect().top),
-    posterImage.evaluate((poster) => poster.getBoundingClientRect().top),
-  ])
-  expect(trailerTop).toBeLessThan(posterTop)
-
-  const metadataCell = page.locator('dl > div').last()
-  await expect(metadataCell).toHaveCSS('grid-column-end', 'span 2')
-
+  expect(playerTop).toBeLessThan(260)
   await page.setViewportSize({ width: 390, height: 844 })
-  const [mobileTitleTop, mobileTrailerTop, mobilePosterTop] = await Promise.all(
-    [
-      movieTitle.evaluate((title) => title.getBoundingClientRect().top),
-      trailerLink.evaluate((trailer) => trailer.getBoundingClientRect().top),
-      posterImage.evaluate(
-        (posterElement) => posterElement.getBoundingClientRect().top,
-      ),
-    ],
-  )
-  expect(mobileTitleTop).toBeLessThan(mobilePosterTop)
-  expect(mobileTrailerTop).toBeLessThan(mobilePosterTop)
+  const [mobilePlayerTop, mobileTitleTop] = await Promise.all([
+    moviePlayer.evaluate((player) => player.getBoundingClientRect().top),
+    movieTitle.evaluate((title) => title.getBoundingClientRect().top),
+  ])
+  expect(mobilePlayerTop).toBeLessThan(mobileTitleTop)
   await expectNoAxeViolations(page)
   await page.setViewportSize({ width: 1280, height: 900 })
 
@@ -738,10 +810,49 @@ test('movie, series, and archive pages receive purpose-built detail views', asyn
       level: 1,
       name: 'Example Series Season 01',
     }),
-  ).toBeVisible()
+  ).toHaveCSS('font-weight', '500')
+  await expect(page.getByRole('heading', { name: 'Details' })).toHaveCSS(
+    'font-weight',
+    '500',
+  )
+  await expect(
+    page.getByRole('heading', { name: 'Series details' }),
+  ).toHaveCount(0)
+  const seasonSelects = page.getByRole('combobox')
+  await expect(seasonSelects).toHaveCount(2)
+  await expect(seasonSelects.nth(0)).toHaveCSS('font-weight', '500')
+  await expect(seasonSelects.nth(1)).toHaveCSS('font-weight', '500')
+  for (const select of await seasonSelects.all()) {
+    const padding = await select.evaluate((element) => {
+      const style = getComputedStyle(element)
+      return [style.paddingLeft, style.paddingRight]
+    })
+    expect(padding[0]).toBe(padding[1])
+  }
   await expect(page.getByRole('heading', { name: '2 Episodes' })).toBeVisible()
+  const episodeCards = page.locator('ol.grid > li')
+  await expect(episodeCards).toHaveCount(2)
+  await expect
+    .poll(() =>
+      episodeCards
+        .first()
+        .locator('..')
+        .evaluate(
+          (grid) =>
+            getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+        ),
+    )
+    .toBe(5)
+  const cardRows = await episodeCards.evaluateAll((cards) =>
+    cards.map((card) => card.getBoundingClientRect().top),
+  )
+  expect(new Set(cardRows).size).toBe(1)
+  await page
+    .getByRole('complementary')
+    .getByText('Download', { exact: true })
+    .click()
   const exportDownloadPromise = page.waitForEvent('download')
-  await page.getByRole('link', { name: 'Export 2 download links' }).click()
+  await page.getByRole('link', { name: 'Export Season 1' }).click()
   const exportDownload = await exportDownloadPromise
   expect(exportDownload.suggestedFilename()).toBe(
     'Example Series Season 01-download-links.txt',
@@ -793,6 +904,272 @@ test('movie, series, and archive pages receive purpose-built detail views', asyn
   ).toBeVisible()
 })
 
+test('clicking the playing video surface pauses playback', async ({
+  context,
+}) => {
+  const page = await context.newPage()
+  await installIccRoutes(page)
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto('http://10.16.100.244/player.php?session=e2e&play=movie')
+  await expectLensOwnsPage(page)
+
+  const video = page.locator('video[aria-label="Example Movie, 1080p WEBRip"]')
+  await page.getByRole('button', { name: 'Play Example Movie' }).click()
+  const player = page.getByRole('dialog', {
+    name: 'Playing Example Movie, 1080p WEBRip',
+  })
+  await video.evaluate((media) => media.dispatchEvent(new Event('play')))
+  await expect(player.getByRole('button', { name: 'Pause' })).toBeVisible()
+
+  await player.click({ position: { x: 640, y: 350 } })
+  await expect(player.getByRole('button', { name: 'Play' })).toHaveCount(2)
+})
+
+test('download collections and information pages receive owned file views', async ({
+  context,
+}) => {
+  const page = await context.newPage()
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await installIccRoutes(page)
+
+  await page.goto(
+    'http://10.16.100.244/download.php?session=e2e&load=collection',
+  )
+  await expectLensOwnsPage(page)
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'CAMBRIDGE IELTS BOOKS (01-15) WITH LISTENING TESTS',
+    }),
+  ).toBeVisible()
+  await expect(
+    page
+      .locator('#icc-lens-main')
+      .getByText('Practice books with listening-test resources.'),
+  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Downloads' })).toBeVisible()
+  await expect(page.getByText('2 files available')).toBeVisible()
+  const downloadGrid = page.getByRole('list', { name: 'Downloads' })
+  await expect(downloadGrid.getByRole('listitem')).toHaveCount(2)
+  await expect
+    .poll(() =>
+      downloadGrid.evaluate(
+        (element) =>
+          getComputedStyle(element).gridTemplateColumns.split(' ').length,
+      ),
+    )
+    .toBe(5)
+  await page.setViewportSize({ width: 1100, height: 900 })
+  await expect
+    .poll(() =>
+      downloadGrid.evaluate(
+        (element) =>
+          getComputedStyle(element).gridTemplateColumns.split(' ').length,
+      ),
+    )
+    .toBe(3)
+  await page.setViewportSize({ width: 900, height: 900 })
+  await expect
+    .poll(() =>
+      downloadGrid.evaluate(
+        (element) =>
+          getComputedStyle(element).gridTemplateColumns.split(' ').length,
+      ),
+    )
+    .toBe(2)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect
+    .poll(() =>
+      downloadGrid.evaluate(
+        (element) =>
+          getComputedStyle(element).gridTemplateColumns.split(' ').length,
+      ),
+    )
+    .toBe(1)
+  await page.setViewportSize({ width: 1440, height: 900 })
+  const firstDownload = page.getByRole('link', {
+    name: 'Download File 01 · 97.50 MB',
+  })
+  await expect(firstDownload).toBeVisible()
+  await expect(firstDownload).toHaveCSS('background-color', 'rgb(251, 191, 36)')
+  await expect(firstDownload).toHaveCSS('color', 'rgb(255, 255, 255)')
+  await expect(
+    page.getByRole('link', { name: 'Download File 02 · 88.80 MB' }),
+  ).toBeVisible()
+  await expect(page.locator('#legacy')).toBeHidden()
+  await expectNoAxeViolations(page)
+
+  await page.goto(
+    'http://10.16.100.244/download.php?session=e2e&load=information',
+  )
+  await expectLensOwnsPage(page)
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'PARADOXICAL SAZID 1 & 2',
+    }),
+  ).toBeVisible()
+  await expect(
+    page
+      .locator('#icc-lens-main')
+      .getByText('Two books that explore questions of belief and modern life.'),
+  ).toBeVisible()
+  await expect(
+    page.getByText('No downloadable file is listed on this ICC page.'),
+  ).toBeVisible()
+  await expect(page.getByRole('link', { name: /^Download/ })).toHaveCount(0)
+  await expect(page.locator('#legacy')).toBeHidden()
+  await expectNoAxeViolations(page)
+})
+
+test('file breadcrumb uses the same destination as the primary File navigation', async ({
+  context,
+}) => {
+  const page = await context.newPage()
+  await installIccRoutes(page)
+  await page.goto(
+    'http://10.16.100.244/download.php?session=e2e&load=collection',
+  )
+  await expectLensOwnsPage(page)
+
+  const fileNav = page
+    .getByRole('navigation', { name: 'Primary pages' })
+    .getByRole('link', { name: 'File' })
+  const fileBreadcrumb = page
+    .getByRole('navigation', { name: 'Breadcrumb' })
+    .getByRole('link', { name: 'Files' })
+  const fileNavHref = await fileNav.getAttribute('href')
+  expect(fileNavHref).not.toBeNull()
+  await expect(fileBreadcrumb).toHaveAttribute('href', fileNavHref ?? '')
+
+  await fileBreadcrumb.click()
+  await expect(page).toHaveURL(/dashboard\.php\?.*category=68/u)
+  await expectLensOwnsPage(page)
+})
+
+test('legacy download templates without main are fully replaced', async ({
+  context,
+}) => {
+  const page = await context.newPage()
+  await installIccRoutes(page)
+
+  await page.goto(
+    'http://10.16.100.244/download.php?session=e2e&load=collection',
+  )
+  await expectLensOwnsPage(page)
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'CAMBRIDGE IELTS BOOKS (01-15) WITH LISTENING TESTS',
+    }),
+  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Downloads' })).toBeVisible()
+
+  await page.goto(
+    'http://10.16.100.244/download.php?session=e2e&load=information',
+  )
+  await expectLensOwnsPage(page)
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'PARADOXICAL SAZID 1 & 2',
+    }),
+  ).toBeVisible()
+  await expect(
+    page.getByText('No downloadable file is listed on this ICC page.'),
+  ).toBeVisible()
+})
+
+test('late legacy download content is replaced after it arrives', async ({
+  context,
+}) => {
+  const page = await context.newPage()
+  await installIccRoutes(page)
+
+  await page.goto('http://10.16.100.244/download.php?session=e2e&load=delayed')
+  await expectLensOwnsPage(page)
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'LATE CAMBRIDGE COLLECTION' }),
+  ).toBeVisible()
+  await expect(
+    page
+      .locator('#icc-lens-main')
+      .getByText('Inserted after the initial document idle parse.'),
+  ).toBeVisible()
+})
+
+test('category changer stays in context while navbar Browse remains global', async ({
+  context,
+}) => {
+  const page = await context.newPage()
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await installIccRoutes(page)
+
+  const scenarios = [
+    {
+      category: '11',
+      dialog: 'Change movie category',
+      visible: ['Movies'],
+      hidden: ['Games', 'Software', 'TV Series', 'Others'],
+    },
+    {
+      category: '41',
+      dialog: 'Change TV series category',
+      visible: ['TV Series'],
+      hidden: ['Movies', 'Games', 'Software', 'Others'],
+    },
+    {
+      category: '21',
+      dialog: 'Change file category',
+      visible: ['Games', 'Software', 'Others'],
+      hidden: ['Movies', 'TV Series'],
+    },
+  ]
+
+  for (const scenario of scenarios) {
+    await page.goto(
+      `http://10.16.100.244/dashboard.php?session=e2e&category=${scenario.category}`,
+    )
+    await expectLensOwnsPage(page)
+    await page.getByRole('button', { name: 'Change category' }).click()
+    const dialog = page.getByRole('dialog', { name: scenario.dialog })
+    await expect(dialog).toBeVisible()
+    for (const name of scenario.visible) {
+      await expect(
+        dialog.getByRole('heading', { name, exact: true }),
+      ).toBeVisible()
+    }
+    for (const name of scenario.hidden) {
+      await expect(
+        dialog.getByRole('heading', { name, exact: true }),
+      ).toHaveCount(0)
+    }
+
+    const columnCount = await (
+      scenario.visible.length === 1
+        ? dialog.locator('[data-category-list]').first()
+        : dialog.locator('[data-category-groups]')
+    ).evaluate(
+      (element) =>
+        getComputedStyle(element).gridTemplateColumns.split(' ').length,
+    )
+    expect(columnCount).toBe(3)
+
+    await dialog.getByRole('button', { name: 'Close category browser' }).click()
+  }
+
+  await page.getByRole('button', { name: 'Browse', exact: true }).click()
+  const globalDialog = page.getByRole('dialog', {
+    name: 'Browse the full library',
+  })
+  for (const [groupName] of categoryGroups) {
+    await expect(
+      globalDialog.getByRole('heading', { name: groupName, exact: true }),
+    ).toBeVisible()
+  }
+  await expectNoAxeViolations(page)
+})
+
 test('legacy detail UI stays hidden when server scripts reveal it after mount', async ({
   context,
 }) => {
@@ -834,19 +1211,15 @@ test('automated UI audit covers every owned route, fallback, and transient state
     'lazy',
   )
 
-  const moviesButton = latest
-    .getByRole('navigation', { name: 'Catalog categories' })
-    .getByRole('button', { name: 'Movies', exact: true })
-  await moviesButton.focus()
-  await latest.keyboard.press('ArrowDown')
-  const moviesMenu = latest.getByRole('region', {
-    name: 'Movies categories',
+  await latest.getByRole('button', { name: 'Browse', exact: true }).click()
+  const browseDialog = latest.getByRole('dialog', {
+    name: 'Browse the full library',
   })
-  await expect(moviesMenu.getByRole('link').first()).toBeFocused()
-  await captureAudit(latest, 'latest-desktop-categories')
-  await latest.keyboard.press('Escape')
-  await expect(moviesMenu).toHaveCount(0)
-  await expect(moviesButton).toBeFocused()
+  await expect(browseDialog).toBeVisible()
+  await captureAudit(latest, 'latest-desktop-library')
+  await browseDialog
+    .getByRole('button', { name: 'Close category browser' })
+    .click()
 
   const search = latest.getByRole('searchbox', {
     name: 'Search the ICC catalog',
@@ -872,7 +1245,15 @@ test('automated UI audit covers every owned route, fallback, and transient state
   const lastCategory = dialog.getByRole('link').last()
   await expect(closeButton).toBeFocused()
   await latest.keyboard.press('Shift+Tab')
+  await expect(
+    browseDialog.getByRole('button', { name: 'Show original site' }),
+  ).toBeFocused()
+  await latest.keyboard.press('Shift+Tab')
   await expect(lastCategory).toBeFocused()
+  await latest.keyboard.press('Tab')
+  await expect(
+    browseDialog.getByRole('button', { name: 'Show original site' }),
+  ).toBeFocused()
   await latest.keyboard.press('Tab')
   await expect(closeButton).toBeFocused()
   await closeButton.click()
@@ -982,7 +1363,11 @@ test('automated UI audit covers every owned route, fallback, and transient state
   await searchError
     .getByRole('searchbox', { name: 'Search the ICC catalog' })
     .fill('wwe')
-  await searchError.getByRole('button', { name: 'Search', exact: true }).click()
+  await searchError
+    .getByRole('searchbox', { name: 'Search the ICC catalog' })
+    .locator('..')
+    .getByRole('button', { name: 'Search' })
+    .click()
   await expect(
     searchError.getByRole('alert').filter({
       hasText: 'The ICC search returned 500.',
@@ -1073,6 +1458,13 @@ async function installIccRoutes(
     if (url.pathname.endsWith('/player.php')) {
       await route.fulfill({
         body: detailDocument(url.searchParams.get('play')),
+        contentType: 'text/html',
+      })
+      return
+    }
+    if (url.pathname.endsWith('/download.php')) {
+      await route.fulfill({
+        body: downloadDocument(url.searchParams.get('load')),
         contentType: 'text/html',
       })
       return
