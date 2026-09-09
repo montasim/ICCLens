@@ -4,7 +4,10 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
-const verifier = path.resolve(process.cwd(), 'scripts/verify-prototype.mjs')
+const verifier = path.resolve(
+  process.cwd(),
+  '../../scripts/verify-prototype.mjs',
+)
 const temporaryRoots: string[] = []
 
 const createPrototype = async (status: 'draft' | 'approved' = 'draft') => {

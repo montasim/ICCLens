@@ -6,12 +6,15 @@ import tseslint from 'typescript-eslint'
 export default tseslint.config(
   {
     ignores: [
+      '**/.wxt/**',
+      '**/dist/**',
+      '**/node_modules/**',
       '.output/**',
-      '.wxt/**',
-      'coverage/**',
-      'node_modules/**',
-      'playwright-report/**',
-      'test-results/**',
+      '**/.netlify/**',
+      'apps/web/src/routeTree.gen.ts',
+      '**/coverage/**',
+      '**/playwright-report/**',
+      '**/test-results/**',
     ],
   },
   eslint.configs.recommended,
@@ -27,11 +30,11 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.mjs', '*.config.js'],
+    files: ['scripts/**/*.mjs', 'apps/*/scripts/**/*.mjs', '*.config.js'],
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['tests/e2e/fixtures.ts'],
+    files: ['**/tests/e2e/fixtures.ts'],
     rules: {
       'no-empty-pattern': 'off',
       'react-hooks/rules-of-hooks': 'off',

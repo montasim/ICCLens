@@ -1,9 +1,12 @@
 .output
-.wxt
-coverage
-node_modules
-playwright-report
-test-results
+**/.wxt
+**/.netlify
+**/dist
+**/coverage
+**/node_modules
+**/playwright-report
+**/test-results
 prototype/icc-ftp-ui-prototype.html
 prototype/index.html
 pnpm-lock.yaml
+apps/extension/src/generated-theme.css

@@ -2,17 +2,18 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
 
-const root = process.cwd()
-const configPath = path.join(root, 'product.config.json')
+const extensionRoot = process.cwd()
+const repositoryRoot = path.resolve(extensionRoot, '../..')
+const configPath = path.join(repositoryRoot, 'product.config.json')
 const config = JSON.parse(await readFile(configPath, 'utf8'))
-const iconDirectory = path.join(root, 'public', 'icon')
+const iconDirectory = path.join(extensionRoot, 'public', 'icon')
 const generatedAt = new Date().toISOString()
 
 await mkdir(iconDirectory, { recursive: true })
 
 const logo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title"><title>${escapeXml(config.name)} logo</title><rect width="128" height="128" rx="18" fill="${config.theme.primary}"/><path d="M105 0h23v128H91z" fill="#55d6be"/><text x="17" y="78" fill="${config.theme.actionForeground}" font-family="Arial,Helvetica,sans-serif" font-size="39" font-weight="700" letter-spacing="-2">ICC</text></svg>`
 
-await writeFile(path.join(root, 'public', 'logo.svg'), logo)
+await writeFile(path.join(extensionRoot, 'public', 'logo.svg'), logo)
 for (const size of [16, 32, 48, 96, 128]) {
   await sharp(Buffer.from(logo))
     .resize(size, size)
@@ -21,7 +22,7 @@ for (const size of [16, 32, 48, 96, 128]) {
 }
 
 await writeFile(
-  path.join(root, 'src', 'generated-theme.css'),
+  path.join(extensionRoot, 'src', 'generated-theme.css'),
   `:root,
 :host,
 [data-theme='light'] {
@@ -158,7 +159,7 @@ await writeFile(
 )
 
 await writeFile(
-  path.join(root, 'public', 'brand-assets.json'),
+  path.join(extensionRoot, 'public', 'brand-assets.json'),
   `${JSON.stringify(
     {
       source: 'product.config.json',

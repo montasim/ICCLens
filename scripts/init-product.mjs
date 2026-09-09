@@ -33,7 +33,7 @@ packageJson.description = config.description
 await writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`)
 await writeFile(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`)
 
-for (const file of ['entrypoints/popup/index.html']) {
+for (const file of ['apps/extension/entrypoints/popup/index.html']) {
   const filePath = path.join(root, file)
   const content = await readFile(filePath, 'utf8')
   await writeFile(filePath, content.replaceAll(previousName, values.name))

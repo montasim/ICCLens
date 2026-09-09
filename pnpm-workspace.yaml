@@ -1,3 +1,6 @@
-onlyBuiltDependencies:
-  - esbuild
-  - sharp
+packages:
+  - apps/*
+
+allowBuilds:
+  esbuild: true
+  sharp: true

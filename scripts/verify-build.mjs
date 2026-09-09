@@ -6,18 +6,18 @@ const releaseConfigOnly = process.argv.includes('--release-config-only')
 const config = JSON.parse(
   await readFile(path.join(root, 'product.config.json'), 'utf8'),
 )
-const packageJson = JSON.parse(
-  await readFile(path.join(root, 'package.json'), 'utf8'),
+const extensionPackage = JSON.parse(
+  await readFile(path.join(root, 'apps/extension/package.json'), 'utf8'),
 )
 
 assert(config.name?.trim(), 'Product name is required.')
 assert(
-  config.slug === packageJson.name,
-  'product.config.json slug must match package.json name.',
+  `@${config.slug}/extension` === extensionPackage.name,
+  'product.config.json slug must match the extension package scope.',
 )
 assert(
-  config.description === packageJson.description,
-  'Product and package descriptions must match.',
+  extensionPackage.description.includes(config.name),
+  'The extension package description must identify the product.',
 )
 assert(
   /^#[0-9a-f]{6}$/iu.test(config.theme.primary),
@@ -62,7 +62,7 @@ assert(
   'Built manifest name does not match product config.',
 )
 assert(
-  manifest.version === packageJson.version,
+  manifest.version === extensionPackage.version,
   'Built manifest version does not match package version.',
 )
 assert(

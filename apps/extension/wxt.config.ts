@@ -1,6 +1,6 @@
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, type WxtViteConfig } from 'wxt'
-import product from './product.config.json'
+import product from '../../product.config.json'
 
 const icons = {
   16: 'icon/16.png',
@@ -10,6 +10,7 @@ const icons = {
 }
 
 export default defineConfig({
+  outDir: '../../.output',
   outDirTemplate: '',
   modules: ['@wxt-dev/module-react'],
   vite: (): WxtViteConfig => ({
